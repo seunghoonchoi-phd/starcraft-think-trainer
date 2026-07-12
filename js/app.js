@@ -143,8 +143,8 @@ const PHASE_TUTORIALS = {
   },
   challenge: {
     title: '최고 난도 복합: 멈추지 않고 두 과제를 함께 수행합니다',
-    prompt: '이 모드는 시간 제한이 없습니다. 숫자 표적, 상황 판단, 규칙 변경, STOP 표적이 함께 나옵니다.',
-    steps: ['숫자 키를 누른 뒤 빛나는 표적을 클릭합니다.', '왼쪽 상황은 Q, 가운데는 W, 오른쪽은 E로 고릅니다.', '빨간 STOP 표적에서는 숫자 키와 클릭을 모두 멈춥니다.', '화면 위 규칙이 바뀌면 판단 기준도 바꿉니다.', '순서가 기억나지 않으면 일시중지를 누르고 오른쪽 우선순위표를 다시 봅니다.']
+    prompt: '이 모드는 시간 제한이 없습니다. 숫자 표적, 상황 판단, 고정 우선순위, STOP 표적이 함께 나옵니다.',
+    steps: ['숫자 키를 누른 뒤 빛나는 표적을 클릭합니다.', '왼쪽 상황은 Q, 가운데는 W, 오른쪽은 E로 고릅니다.', '빨간 STOP 표적에서는 숫자 키와 클릭을 모두 멈춥니다.', '기지 방어, 보급, 생산, 정찰, 확장, 공격 순서를 항상 사용합니다.', '순서가 기억나지 않으면 일시중지를 누르고 오른쪽 우선순위표를 다시 봅니다.']
   }
 };
 
@@ -330,7 +330,7 @@ function updateCoach() {
     switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
     inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키와 클릭을 모두 멈춰야 합니다.',
     transfer: '앱이 숫자 키 순서를 바꾸고 정답을 바로 알려 주지 않습니다.',
-    challenge: '사용자는 숫자 표적, Q·W·E 판단, 규칙 변경, STOP 억제를 함께 수행해야 합니다. 순서가 기억나지 않으면 일시중지 후 오른쪽 표를 다시 봅니다.'
+    challenge: '사용자는 숫자 표적, Q·W·E 판단, 고정 우선순위, STOP 억제를 함께 수행해야 합니다. 순서가 기억나지 않으면 일시중지 후 오른쪽 표를 다시 봅니다.'
   };
   elements.coachLine.textContent = lines[phase.id];
 }
@@ -666,7 +666,7 @@ function renderPriorityGuide() {
   elements.tutorialScene.innerHTML = `<ol class="priority-memory">${PRIORITY_GUIDE.map((item) => `
     <li><b>${item.rank}</b><div><strong>${item.action}</strong><span>${item.condition}</span></div></li>`).join('')}</ol>`;
   elements.tutorialPrompt.textContent = '실제 판단에서는 세 상황 중 이 순서에서 가장 위에 있는 행동을 고릅니다.';
-  elements.tutorialQuestion.textContent = '우선 과제 변경과 판단 규칙 변경 단계에서는 화면 위 안내가 이 기본 순서를 바꿉니다.';
+  elements.tutorialQuestion.textContent = '최고 난도 복합도 이 기본 순서를 항상 사용합니다.';
   elements.tutorialOptions.hidden = true;
   elements.tutorialOptions.innerHTML = '';
   elements.tutorialFeedback.textContent = '시간 제한이 없습니다. 이 순서를 외운 뒤 상황 문제로 넘어가세요.';

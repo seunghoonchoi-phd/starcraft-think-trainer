@@ -23,10 +23,10 @@ test('switch phase rotates explicit goals', () => {
   assert.equal(goalForPhase('dual', 50), 'balance');
 });
 
-test('challenge phase rotates the judgment rule every twenty seconds', () => {
-  assert.equal(goalForPhase('challenge', 0), 'survive');
-  assert.equal(goalForPhase('challenge', 20), 'grow');
-  assert.equal(goalForPhase('challenge', 40), 'attack');
+test('challenge phase keeps one fixed judgment rule', () => {
+  assert.equal(goalForPhase('challenge', 0), 'balance');
+  assert.equal(goalForPhase('challenge', 20), 'balance');
+  assert.equal(goalForPhase('challenge', 40), 'balance');
 });
 
 test('decision keys follow the left-to-right situation order', () => {

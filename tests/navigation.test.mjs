@@ -44,13 +44,13 @@ test('the trainer exposes immediate start, stage practice, pause, and home contr
   assert.match(html, /id="decision-status">응답 시간</);
   assert.match(html, /id="situation-visual"/);
   assert.match(html, /id="target-instruction"/);
-  assert.match(html, /1\. 1 키 누르기/);
+  assert.match(html, /1\. A 키 누르기/);
   assert.match(html, /빛나는 표적 클릭/);
   assert.match(html, /id="tutorial-button"/);
   assert.match(html, /id="tutorial-panel"/);
   assert.match(html, /id="tutorial-question"/);
   assert.match(html, /시간 제한 없음/);
-  assert.match(html, /1부터 4/);
+  assert.match(html, /A<\/kbd>, <kbd>S<\/kbd>, <kbd>D<\/kbd>, <kbd>F/);
   assert.match(app, /createMotorCommand/);
   assert.match(app, /빛나는 표적/);
   assert.doesNotMatch(app, /같은 기호가 있는 표적/);

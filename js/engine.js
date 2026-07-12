@@ -19,25 +19,9 @@ export const MOTOR_ORDERS = {
   transfer: ['Digit3', 'Digit1', 'Digit2']
 };
 
-export const MOTOR_COMMANDS = [
-  { id: 'r', code: 'KeyR', label: 'R' },
-  { id: 't', code: 'KeyT', label: 'T' },
-  { id: 'y', code: 'KeyY', label: 'Y' },
-  { id: 'f', code: 'KeyF', label: 'F' },
-  { id: 'g', code: 'KeyG', label: 'G' },
-  { id: 'h', code: 'KeyH', label: 'H' }
-];
-
-export function createMotorCommand(index, phaseId, random = Math.random) {
+export function createMotorCommand(index, phaseId) {
   const order = phaseId === 'transfer' ? MOTOR_ORDERS.transfer : MOTOR_ORDERS.practice;
-  const groupCode = order[index % order.length];
-  const action = MOTOR_COMMANDS[Math.min(MOTOR_COMMANDS.length - 1, Math.floor(random() * MOTOR_COMMANDS.length))];
-  return {
-    groupCode,
-    actionCode: action.code,
-    actionSymbol: action.label,
-    actionLabel: action.label
-  };
+  return { groupCode: order[index % order.length] };
 }
 
 export function clamp(value, min, max) {
@@ -113,7 +97,7 @@ export function computeSessionSummary(rawByPhase) {
 
 export function classifyProfile({ motor, decision, combined, motorRetention, thinkingRetention }) {
   if (motor.motorAccuracy < 0.78 || motor.actionRate < 12) {
-    return { id: 'motor', title: '사용자는 숫자 키와 클릭 순서를 먼저 연습해야 합니다', advice: '사용자의 입력 정확도가 기준보다 낮았습니다. 사용자는 다음 세션에서 속도를 올리지 말고 표적에 표시된 숫자 키와 R, T, Y, F, G, H 중 한 키를 누른 뒤 표적을 클릭해야 합니다. 사용자는 입력 정확도 90%를 목표로 연습해야 합니다.' };
+    return { id: 'motor', title: '사용자는 숫자 키와 클릭 순서를 먼저 연습해야 합니다', advice: '사용자의 입력 정확도가 기준보다 낮았습니다. 사용자는 다음 세션에서 속도를 올리지 말고 표적에 표시된 숫자 키를 누른 뒤 표적을 클릭해야 합니다. 사용자는 입력 정확도 90%를 목표로 연습해야 합니다.' };
   }
   if (decision.decisionAccuracy < 0.7) {
     return { id: 'decision', title: '사용자는 우선순위 규칙을 먼저 익혀야 합니다', advice: '사용자가 입력 과제를 하지 않은 구간에서도 판단 정확도가 기준보다 낮았습니다. 사용자는 피로 상태와 화면에 표시된 우선순위 규칙을 확인한 뒤 판단 과제를 다시 수행해야 합니다.' };
@@ -122,7 +106,7 @@ export function classifyProfile({ motor, decision, combined, motorRetention, thi
     return { id: 'dual', title: '두 과제를 함께 수행할 때 성적이 낮아졌습니다', advice: '두 과제를 함께 수행한 구간에서 사용자의 입력 속도나 판단 성적 중 하나가 기준선보다 많이 낮아졌습니다. 사용자는 다음 세션에서 입력 속도를 기준선의 80~85%로 유지하면서 판단 문제를 함께 풀어야 합니다.' };
   }
   if ((combined.noiseInputs || 0) > (combined.validActions || 0) * 0.35) {
-    return { id: 'noise', title: '사용자의 잘못된 입력 횟수가 많았습니다', advice: '사용자의 전체 입력 수는 많았지만, 사용자가 두 키와 클릭을 정확한 순서로 완료한 횟수는 적었습니다. 사용자는 다음 세션에서 반복 입력과 앱이 표적을 표시하기 전에 누르는 키를 줄이고, 화면에 표시된 순서만 입력해야 합니다.' };
+    return { id: 'noise', title: '사용자의 잘못된 입력 횟수가 많았습니다', advice: '사용자의 전체 입력 수는 많았지만, 사용자가 숫자 키와 클릭을 정확한 순서로 완료한 횟수는 적었습니다. 사용자는 다음 세션에서 반복 입력과 앱이 표적을 표시하기 전에 누르는 키를 줄이고, 화면에 표시된 순서만 입력해야 합니다.' };
   }
   return { id: 'balanced', title: '사용자가 입력 속도와 판단 성적을 함께 유지했습니다', advice: '사용자는 다음 세션에서 변경 조건 검사의 판단 정확도를 높여야 합니다. 사용자는 실제 게임 리플레이를 열어 교전 중 생산 공백 시간이 줄었는지 따로 확인해야 합니다.' };
 }

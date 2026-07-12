@@ -40,7 +40,7 @@
             <div>
               <p class="console-kicker">오늘의 훈련</p>
               <h3>이중과제 입력·판단 훈련</h3>
-              <p>앱은 매번 숫자 키, <kbd>R</kbd>, <kbd>T</kbd>, <kbd>Y</kbd>, <kbd>F</kbd>, <kbd>G</kbd>, <kbd>H</kbd> 중 한 키, 표적 위치를 바꿉니다. 사용자는 표적에 표시된 순서대로 두 키를 누른 뒤 표적을 클릭합니다. 상황 그림이 뜨면 사용자는 <kbd>Q</kbd>, <kbd>W</kbd>, <kbd>E</kbd>로 먼저 처리할 행동을 고릅니다.</p>
+              <p>앱은 매번 숫자 키와 표적 위치를 바꿉니다. 사용자는 표적에 표시된 숫자 키를 누른 뒤 빛나는 표적을 클릭합니다. 상황 그림이 뜨면 사용자는 <kbd>Q</kbd>, <kbd>W</kbd>, <kbd>E</kbd>로 먼저 처리할 행동을 고릅니다.</p>
             </div>
             <div class="setup-grid">
               <label>오늘 몸 상태
@@ -101,7 +101,7 @@
                 <div class="base production-base"><span>생산</span></div>
                 <div class="base scout-base"><span>정찰</span></div>
                 <button id="motor-target" class="motor-target" type="button" hidden aria-label="명령 표적">
-                  <span id="target-key">1 키 → R 키</span>
+                  <span id="target-key">1 키 → 클릭</span>
                   <small id="target-instruction">그 다음, 여기 클릭</small>
                 </button>
                 <div id="map-message" class="map-message">
@@ -123,9 +123,9 @@
             </div>
 
             <div class="command-hud">
-              <div><span>현재 순서</span><strong id="motor-order">1. 1 키 누르기 → 2. R 키 누르기 → 3. 빛나는 표적 클릭</strong></div>
+              <div><span>현재 순서</span><strong id="motor-order">1. 1 키 누르기 → 2. 빛나는 표적 클릭</strong></div>
               <div><span>판단 키</span><strong>Q · W · E</strong></div>
-              <p id="coach-line">앱은 숫자 키, R·T·Y·F·G·H 중 한 키, 클릭을 순서대로 완료한 동작만 점수로 계산합니다.</p>
+              <p id="coach-line">앱은 숫자 키와 클릭을 순서대로 완료한 동작만 점수로 계산합니다.</p>
             </div>
           </section>
 

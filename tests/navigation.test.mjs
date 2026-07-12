@@ -50,7 +50,7 @@ test('the trainer exposes immediate start, stage practice, pause, and home contr
   assert.match(html, /id="tutorial-panel"/);
   assert.match(html, /id="tutorial-question"/);
   assert.match(html, /시간 제한 없음/);
-  assert.match(html, /<kbd>R<\/kbd>, <kbd>T<\/kbd>, <kbd>Y<\/kbd>, <kbd>F<\/kbd>, <kbd>G<\/kbd>, <kbd>H<\/kbd>/);
+  assert.doesNotMatch(html, /<kbd>[RTYFGH]<\/kbd>/);
   assert.match(app, /createMotorCommand/);
   assert.match(app, /빛나는 표적/);
   assert.doesNotMatch(app, /같은 기호가 있는 표적/);

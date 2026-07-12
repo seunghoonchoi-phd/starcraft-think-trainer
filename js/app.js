@@ -110,7 +110,7 @@ const PHASE_TUTORIALS = {
   motor: {
     title: '입력 기준선: 세 단계를 순서대로 수행합니다',
     prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
-    steps: ['표적 안에 표시된 숫자 키를 누릅니다.', '표적 안에 표시된 R, T, Y, F, G, H 중 한 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
+    steps: ['표적 안에 표시된 숫자 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
   },
   dual: {
     title: '동시 수행: 입력과 판단을 함께 수행합니다',
@@ -129,7 +129,7 @@ const PHASE_TUTORIALS = {
   },
   inhibit: {
     title: '입력 억제: STOP 표적에서는 아무것도 입력하지 않습니다',
-    prompt: '빨간 STOP 표적이 보이면 첫 키, 둘째 키, 클릭을 모두 멈추세요.',
+    prompt: '빨간 STOP 표적이 보이면 숫자 키와 클릭을 모두 멈추세요.',
     steps: ['STOP이 아닌 표적에서는 세 단계 입력을 수행합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
   },
   transfer: {
@@ -267,7 +267,7 @@ function setupPhase() {
   elements.motorOrder.textContent = hasMotor(phase) ? '명령 대기' : '입력 없음';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
-    ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 숫자 키, R, T, Y, F, G, H 중 한 키, 표적 클릭을 순서대로 수행해야 합니다.</span>'
+    ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 숫자 키와 표적 클릭을 순서대로 수행해야 합니다.</span>'
     : '<strong>앱이 시각 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 입력하지 않고 상황 그림만 보고 행동을 골라야 합니다.</span>';
   elements.decisionCard.hidden = true;
   elements.motorTarget.hidden = true;
@@ -301,12 +301,12 @@ function updateCoach() {
   const phase = activePhase();
   const lines = {
     prepare: '앱은 곧 입력 과제와 판단 과제를 따로 측정합니다. 사용자는 정확도를 유지할 수 있는 속도로 입력해야 합니다.',
-    motor: '사용자는 숫자 키와 R, T, Y, F, G, H 중 한 키를 누른 뒤 움직인 표적을 클릭해야 합니다.',
+    motor: '사용자는 숫자 키를 누른 뒤 움직인 표적을 클릭해야 합니다.',
     decision: '사용자는 문장을 읽지 않고 상황 그림을 보고 가장 먼저 처리할 행동을 골라야 합니다.',
     dual: '사용자는 세 단계 입력을 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
     priority: '앱이 한 과제를 우선 과제로 표시해도 사용자는 다른 과제를 계속 수행해야 합니다.',
     switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
-    inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 첫 키, 둘째 키, 클릭을 모두 멈춰야 합니다.',
+    inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키와 클릭을 모두 멈춰야 합니다.',
     transfer: '앱이 숫자 키 순서를 바꾸고 정답을 바로 알려 주지 않습니다.'
   };
   elements.coachLine.textContent = lines[phase.id];
@@ -352,12 +352,12 @@ function spawnMotorTarget() {
   elements.motorTarget.hidden = false;
   elements.motorTarget.classList.toggle('stop', stop);
   elements.motorTarget.classList.remove('keyed', 'commanded');
-  elements.targetKey.textContent = stop ? 'STOP' : `${keyLabel(command.groupCode)} 키 → ${keyLabel(command.actionCode)} 키`;
-  elements.targetInstruction.textContent = stop ? '첫 키, 둘째 키, 클릭을 멈추세요' : '그 다음, 여기 클릭';
-  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 키를 누르고 ${keyLabel(command.actionCode)} 키를 누른 뒤 클릭할 빛나는 표적`);
+  elements.targetKey.textContent = stop ? 'STOP' : `${keyLabel(command.groupCode)} 키 → 클릭`;
+  elements.targetInstruction.textContent = stop ? '숫자 키와 클릭을 멈추세요' : '숫자 키를 누른 뒤 여기 클릭';
+  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 키를 누른 뒤 클릭할 빛나는 표적`);
   elements.motorOrder.textContent = stop
-    ? 'STOP · 첫 키, 둘째 키, 클릭을 모두 멈추세요'
-    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. ${keyLabel(command.actionCode)} 키 누르기 → 3. 빛나는 표적 클릭`;
+    ? 'STOP · 숫자 키와 클릭을 모두 멈추세요'
+    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. 빛나는 표적 클릭`;
   const x = 11 + Math.random() * 78;
   const y = 14 + Math.random() * 72;
   elements.motorTarget.style.left = `${x}%`;
@@ -376,8 +376,7 @@ function expireTarget() {
 function handleMotorKey(code) {
   if (!session.running || session.paused || !hasMotor()) return false;
   const isGroupKey = ['Digit1', 'Digit2', 'Digit3'].includes(code);
-  const isCommandKey = ['KeyR', 'KeyT', 'KeyY', 'KeyF', 'KeyG', 'KeyH'].includes(code);
-  if (!isGroupKey && !isCommandKey) return false;
+  if (!isGroupKey) return false;
   const stats = session.stats[activePhase().id];
   const target = session.currentTarget;
   if (!target || target.resolved) {
@@ -395,15 +394,11 @@ function handleMotorKey(code) {
   if (isGroupKey && code === target.groupCode && !target.grouped) {
     target.grouped = true;
     elements.motorTarget.classList.add('keyed');
-    elements.targetKey.textContent = `${keyLabel(target.actionCode)} 키`;
-    elements.targetInstruction.textContent = '그 다음, 여기 클릭';
-    elements.motorOrder.textContent = `2. ${keyLabel(target.actionCode)} 키 누르기 → 3. 빛나는 표적 클릭`;
-  } else if (isCommandKey && target.grouped && code === target.actionCode && !target.commanded) {
     target.commanded = true;
     elements.motorTarget.classList.add('commanded');
     elements.targetKey.textContent = '여기 클릭';
     elements.targetInstruction.textContent = '마우스로 클릭하세요';
-    elements.motorOrder.textContent = '3. 빛나는 표적 클릭';
+    elements.motorOrder.textContent = '2. 빛나는 표적 클릭';
   } else {
     stats.noiseInputs += 1;
   }
@@ -828,7 +823,7 @@ elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
   if (event.repeat || tutorial.active || !session.running || session.paused) return;
-  if (['Digit1', 'Digit2', 'Digit3', 'KeyR', 'KeyT', 'KeyY', 'KeyF', 'KeyG', 'KeyH', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
+  if (['Digit1', 'Digit2', 'Digit3', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
   if (answerDecision(event.code)) return;
   handleMotorKey(event.code);
 });

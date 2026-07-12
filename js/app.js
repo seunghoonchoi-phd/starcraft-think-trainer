@@ -133,7 +133,9 @@ function hasDecision(phase = activePhase()) {
 }
 
 function startSession(demo = false) {
-  const qaMode = new URLSearchParams(location.search).get('qa') === '1';
+  const qaMode = demo
+    && ['127.0.0.1', 'localhost'].includes(location.hostname)
+    && new URLSearchParams(location.search).get('qa') === '1';
   session.running = true;
   session.paused = false;
   session.demo = demo;

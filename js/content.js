@@ -169,10 +169,11 @@ let sequence = 0;
 export function createDecision(goalId = 'balance', options = {}) {
   const random = options.random || Math.random;
   const transfer = Boolean(options.transfer);
+  const bannedCorrectIds = new Set(options.bannedCorrectIds || []);
   const goal = GOALS[goalId] || GOALS.balance;
   const ids = shuffle(Object.keys(ISSUES), random).slice(0, 3);
   const ranked = ids.slice().sort((a, b) => goal.priority.indexOf(a) - goal.priority.indexOf(b));
-  const correctId = ranked[0];
+  const correctId = ranked.find((id) => !bannedCorrectIds.has(id)) || ranked[0];
   const keyCodes = ['KeyQ', 'KeyW', 'KeyE'];
   const positionLabels = ['왼쪽', '가운데', '오른쪽'];
   const requestedIndex = keyCodes.indexOf(options.correctCode);

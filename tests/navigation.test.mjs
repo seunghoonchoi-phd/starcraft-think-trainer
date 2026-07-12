@@ -39,6 +39,8 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.equal((html.match(/class="[^"]*\bphase-button\b[^"]*"/g) || []).length, 1);
   assert.equal((html.match(/class="[^"]*\btutorial-mode-button\b[^"]*"/g) || []).length, 2);
   assert.match(html, /id="motor-tutorial-button"/);
+  assert.match(html, /id="priority-ban-list"/);
+  assert.match(html, /정답에서 제외할 우선순위 번호, 최대 2개/);
   assert.match(html, /id="decision-tutorial-button"/);
   assert.match(html, /id="pause-button"/);
   assert.match(html, /일시정지/);
@@ -75,10 +77,12 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(app, /phase\.id === 'challenge'\s*\? GOALS\.balance/);
   assert.match(app, /function resetDecisionKeyCycle\(\)/);
   assert.match(app, /correctCode: nextDecisionKey\(\)/);
+  assert.match(app, /function renderPriorityBanSetup\(\)/);
+  assert.match(app, /bannedCorrectIds: session\.bannedPriorityIds/);
   assert.match(app, /class="pause-review-art"/);
   assert.match(app, /situationGraphic\(item\.id\)/);
   assert.match(app, /return phase\?\.id === 'challenge' \? 4000/);
-  assert.match(app, /startSession\(false, button\.closest\('li'\)\?\.dataset\.phase\)/);
+  assert.match(app, /button\.addEventListener\('click', openChallengeSetup\)/);
   assert.match(app, /if \(!decision \|\| !decision\.ready \|\| decision\.answered \|\| !hasDecision\(\)\) return false/);
   assert.match(app, /정답입니다\. \$\{decision\.reason\}/);
   assert.match(app, /오답입니다\. 정답은 \$\{decision\.correctLabel\}입니다\. \$\{decision\.reason\}/);

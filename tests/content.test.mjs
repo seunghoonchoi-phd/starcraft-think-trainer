@@ -44,6 +44,12 @@ test('decision can place the correct answer at any requested key', () => {
   }
 });
 
+test('banned priority items cannot become the correct answer', () => {
+  const decision = createDecision('balance', { random: seededRandom([0.1, 0.7, 0.3, 0.9]), bannedCorrectIds: ['defend', 'supply'] });
+  assert.notEqual(decision.correctId, 'defend');
+  assert.notEqual(decision.correctId, 'supply');
+});
+
 test('priority phase rotates all three priorities', () => {
   assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');

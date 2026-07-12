@@ -209,6 +209,18 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .setup-grid { max-width: 690px; margin-top: 34px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px; }
 .setup-grid label { color: #8fa0b2; font-size: 11px; font-weight: 700; }
 .setup-grid select { width: 100%; margin-top: 8px; padding: 13px 14px; color: var(--white); border: 1px solid rgba(255,255,255,.15); border-radius: 9px; background: #13273b; }
+.priority-ban-setup { grid-column: 1 / -1; margin: 0; padding: 14px; border: 1px solid rgba(83,226,202,.25); border-radius: 12px; background: rgba(11,24,38,.72); }
+.priority-ban-setup legend { padding: 0 5px; color: var(--white); font-size: 13px; font-weight: 900; }
+.priority-ban-setup > p { margin: 3px 0 11px; color: #aabac8; font-size: 11px; line-height: 1.45; }
+.priority-ban-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.priority-ban-option { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 7px; align-items: center; min-width: 0; padding: 6px; color: var(--white); text-align: left; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: #14263a; cursor: pointer; }
+.priority-ban-option:hover, .priority-ban-option:focus-visible { border-color: var(--cyan); outline: none; }
+.priority-ban-option.is-selected { border-color: var(--orange); background: rgba(255,122,69,.12); }
+.priority-ban-art { display: grid; place-items: center; height: 39px; border-radius: 5px; background: #0a1725; }
+.priority-ban-art svg { width: 45px; height: 34px; overflow: visible; }
+.priority-ban-art .friendly { fill: var(--cyan); stroke: var(--cyan); }.priority-ban-art .danger { fill: var(--orange); stroke: var(--orange); }.priority-ban-art .warn { fill: var(--yellow); stroke: var(--yellow); }.priority-ban-art .resource { fill: var(--blue); stroke: var(--blue); }.priority-ban-art .production { fill: #26445f; stroke: #6c88a1; stroke-width: 2; }.priority-ban-art .quiet { opacity: .38; }.priority-ban-art .fog { fill: rgba(128,145,161,.18); stroke: #7f93a5; stroke-width: 2; stroke-dasharray: 4 3; }.priority-ban-art .accent, .priority-ban-art .route, .priority-ban-art .arrow { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }.priority-ban-art .accent { stroke: var(--cyan); }.priority-ban-art .route { stroke: #668aa6; stroke-width: 2; stroke-dasharray: 4 3; }.priority-ban-art .route.danger, .priority-ban-art .route.warn, .priority-ban-art .route.friendly { stroke-width: 3; }
+.priority-ban-option span { display: grid; min-width: 0; grid-template-columns: 21px 1fr; column-gap: 4px; }
+.priority-ban-option b { color: var(--orange); font: 800 9px "IBM Plex Mono", monospace; }.priority-ban-option strong { font-size: 11px; }.priority-ban-option small { grid-column: 2; margin-top: 2px; color: #aabac8; font-size: 8px; line-height: 1.25; }.priority-ban-setup > small { display: block; margin-top: 9px; color: var(--cyan); font-size: 10px; font-weight: 800; }
 .start-actions, .result-actions { display: flex; gap: 14px; margin-top: 26px; }
 .start-panel .ghost-button, .result-panel .ghost-button { border-color: rgba(255,255,255,.18); color: var(--white); }
 .practice-status { max-width: 780px; margin: 18px 0 0; color: var(--cyan); font-size: 14px; }

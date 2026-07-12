@@ -23,6 +23,8 @@ const elements = {
   playPanel: $('#play-panel'),
   resultPanel: $('#result-panel'),
   startButton: $('#start-button'),
+  priorityBanList: $('#priority-ban-list'),
+  priorityBanStatus: $('#priority-ban-status'),
   motorTutorialButton: $('#motor-tutorial-button'),
   decisionTutorialButton: $('#decision-tutorial-button'),
   restartButton: $('#restart-button'),
@@ -102,12 +104,14 @@ const session = {
   decisionKeyCycle: [],
   decisionKeyIndex: 0,
   lastDecisionKey: '',
+  bannedPriorityIds: [],
   priority: '동일 비중',
   summary: null,
   tutorialsSeen: new Set()
 };
 
 let currentPage = 'trainer';
+const selectedPriorityBans = new Set();
 const tutorial = { active: false, index: 0, answered: false, kind: 'decision', onComplete: null, motorStep: 0 };
 const PHASE_TUTORIALS = {
   prepare: {
@@ -240,6 +244,7 @@ function startSession(demo = false, practicePhaseId = null) {
   session.stats = {};
   session.motorInterval = demo ? 850 : 1150;
   session.summary = null;
+  session.bannedPriorityIds = [...selectedPriorityBans];
   session.tutorialsSeen = new Set();
   elements.startPanel.hidden = true;
   elements.resultPanel.hidden = true;
@@ -474,6 +479,40 @@ function situationGraphic(id) {
     pressure: `<svg viewBox="0 0 140 74" aria-hidden="true"><circle class="friendly" cx="25" cy="23" r="6"/><circle class="friendly" cx="37" cy="35" r="7"/><circle class="friendly" cx="23" cy="46" r="5"/><path class="route friendly" d="M50 38h38"/><path class="arrow friendly" d="m82 31 10 7-10 7"/><rect class="danger" x="102" y="26" width="22" height="24" rx="3"/></svg>`
   };
   return graphics[id] || '';
+}
+
+function renderPriorityBanSetup() {
+  elements.priorityBanList.innerHTML = PRIORITY_GUIDE.map((item) => `
+    <button class="priority-ban-option${selectedPriorityBans.has(item.id) ? ' is-selected' : ''}" type="button" data-id="${item.id}" aria-pressed="${selectedPriorityBans.has(item.id)}">
+      <div class="priority-ban-art" aria-hidden="true">${situationGraphic(item.id)}</div>
+      <span><b>${item.rank}</b><strong>${item.action}</strong><small>${item.condition}</small></span>
+    </button>`).join('');
+  elements.priorityBanList.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', () => togglePriorityBan(button.dataset.id));
+  });
+  const selected = [...selectedPriorityBans];
+  elements.priorityBanStatus.textContent = selected.length
+    ? `${selected.length}개 제외 · ${selected.map((id) => PRIORITY_GUIDE.find((item) => item.id === id).rank).join(', ')}번`
+    : '선택 안 함 · 최대 2개';
+}
+
+function togglePriorityBan(id) {
+  if (selectedPriorityBans.has(id)) selectedPriorityBans.delete(id);
+  else if (selectedPriorityBans.size < 2) selectedPriorityBans.add(id);
+  else {
+    elements.priorityBanStatus.textContent = '최대 2개까지만 제외할 수 있습니다.';
+    return;
+  }
+  renderPriorityBanSetup();
+}
+
+function openChallengeSetup() {
+  if (session.running) returnHome('훈련을 멈추고 정답 제외 번호를 다시 정합니다.');
+  elements.startPanel.hidden = false;
+  elements.resultPanel.hidden = true;
+  elements.playPanel.hidden = true;
+  elements.app.dataset.state = 'setup';
+  renderPriorityBanSetup();
 }
 
 function renderSituation(decision) {
@@ -747,7 +786,7 @@ function showDecision() {
   const phase = activePhase();
   const goalId = phase.id === 'challenge' ? 'balance' : goalForPhase(phase.id, session.phaseElapsed);
   session.currentDecision = {
-    ...createDecision(goalId, { transfer: phase.id === 'transfer', correctCode: nextDecisionKey() }),
+    ...createDecision(goalId, { transfer: phase.id === 'transfer', correctCode: nextDecisionKey(), bannedCorrectIds: session.bannedPriorityIds }),
     shownAt: performance.now(),
     ready: true,
     answered: false
@@ -1016,8 +1055,10 @@ elements.tutorialNext.addEventListener('click', () => {
   renderTutorial();
 });
 elements.phaseButtons.forEach((button) => {
-  button.addEventListener('click', () => startSession(false, button.closest('li')?.dataset.phase));
+  button.addEventListener('click', openChallengeSetup);
 });
+
+renderPriorityBanSetup();
 elements.restartButton.addEventListener('click', () => {
   elements.resultPanel.hidden = true;
   elements.startPanel.hidden = false;

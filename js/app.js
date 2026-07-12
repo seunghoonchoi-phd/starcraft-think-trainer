@@ -9,7 +9,7 @@ import {
   keyLabel,
   summarizePhase
 } from './engine.js';
-import { createDecision, goalForPhase, priorityForTime, GOALS, TUTORIAL_CASES } from './content.js';
+import { createDecision, goalForPhase, priorityForTime, GOALS, PRIORITY_GUIDE, TUTORIAL_CASES } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
 const BASE_TITLE = '이중과제 입력·판단 훈련';
@@ -456,7 +456,7 @@ function renderSituation(decision) {
 
 function openDecisionTutorial(onComplete = null) {
   tutorial.active = true;
-  tutorial.index = 0;
+  tutorial.index = -1;
   tutorial.answered = false;
   tutorial.kind = 'decision';
   tutorial.onComplete = onComplete;
@@ -526,6 +526,10 @@ function renderPhaseTutorial() {
 }
 
 function renderDecisionTutorial() {
+  if (tutorial.index === -1) {
+    renderPriorityGuide();
+    return;
+  }
   const item = TUTORIAL_CASES[tutorial.index];
   tutorial.answered = false;
   elements.tutorialProgress.textContent = `상황 ${tutorial.index + 1} / ${TUTORIAL_CASES.length}`;
@@ -542,6 +546,22 @@ function renderDecisionTutorial() {
   elements.tutorialFeedback.textContent = '시간 제한이 없습니다. 문장과 그림을 확인한 뒤 답을 고르세요.';
   elements.tutorialFeedback.className = 'tutorial-feedback';
   elements.tutorialNext.hidden = true;
+}
+
+function renderPriorityGuide() {
+  tutorial.answered = true;
+  elements.tutorialProgress.textContent = '먼저 외울 기본 순서';
+  elements.tutorialTitle.textContent = '가장 위에 있는 행동을 먼저 고르세요';
+  elements.tutorialScene.innerHTML = `<ol class="priority-memory">${PRIORITY_GUIDE.map((item) => `
+    <li><b>${item.rank}</b><div><strong>${item.action}</strong><span>${item.condition}</span></div></li>`).join('')}</ol>`;
+  elements.tutorialPrompt.textContent = '실제 판단에서는 세 상황 중 이 순서에서 가장 위에 있는 행동을 고릅니다.';
+  elements.tutorialQuestion.textContent = '우선 과제 변경과 판단 규칙 변경 단계에서는 화면 위 안내가 이 기본 순서를 바꿉니다.';
+  elements.tutorialOptions.hidden = true;
+  elements.tutorialOptions.innerHTML = '';
+  elements.tutorialFeedback.textContent = '시간 제한이 없습니다. 이 순서를 외운 뒤 상황 문제로 넘어가세요.';
+  elements.tutorialFeedback.className = 'tutorial-feedback';
+  elements.tutorialNext.textContent = '순서를 외웠습니다. 상황 문제로 가기';
+  elements.tutorialNext.hidden = false;
 }
 
 function answerTutorial(answerId) {

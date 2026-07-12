@@ -110,7 +110,7 @@ const PHASE_TUTORIALS = {
   motor: {
     title: '입력 기준선: 세 단계를 순서대로 수행합니다',
     prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
-    steps: ['숫자 키를 누릅니다.', 'A, S, D 중 표시된 명령 키를 누릅니다.', '같은 기호가 있는 표적을 클릭합니다.']
+    steps: ['표적 안에 표시된 숫자 키를 누릅니다.', '표적 안에 표시된 A, S, D 중 명령 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
   },
   dual: {
     title: '동시 수행: 입력과 판단을 함께 수행합니다',
@@ -352,12 +352,12 @@ function spawnMotorTarget() {
   elements.motorTarget.hidden = false;
   elements.motorTarget.classList.toggle('stop', stop);
   elements.motorTarget.classList.remove('keyed', 'commanded');
-  elements.targetKey.textContent = stop ? 'STOP' : command.actionSymbol;
-  elements.targetInstruction.textContent = stop ? '입력하지 마세요' : '마지막: 여기 클릭';
-  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 다음 ${keyLabel(command.actionCode)}를 누르고 클릭할 표적`);
+  elements.targetKey.textContent = stop ? 'STOP' : `${keyLabel(command.groupCode)} 키 → ${keyLabel(command.actionCode)} 키`;
+  elements.targetInstruction.textContent = stop ? '숫자 키, 명령 키, 클릭을 멈추세요' : '그 다음, 여기 클릭';
+  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 키를 누르고 ${keyLabel(command.actionCode)} 키를 누른 뒤 클릭할 빛나는 표적`);
   elements.motorOrder.textContent = stop
     ? 'STOP · 숫자 키, 명령 키, 클릭을 모두 멈추세요'
-    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. ${keyLabel(command.actionCode)} 키 누르기 → 3. ${command.actionSymbol} 표적 클릭`;
+    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. ${keyLabel(command.actionCode)} 키 누르기 → 3. 빛나는 표적 클릭`;
   const x = 11 + Math.random() * 78;
   const y = 14 + Math.random() * 72;
   elements.motorTarget.style.left = `${x}%`;
@@ -395,13 +395,15 @@ function handleMotorKey(code) {
   if (isGroupKey && code === target.groupCode && !target.grouped) {
     target.grouped = true;
     elements.motorTarget.classList.add('keyed');
-    elements.targetInstruction.textContent = `다음: ${keyLabel(target.actionCode)} 키 누르기`;
-    elements.motorOrder.textContent = `2. ${keyLabel(target.actionCode)} 키 누르기 → 3. ${target.actionSymbol} 표적 클릭`;
+    elements.targetKey.textContent = `${keyLabel(target.actionCode)} 키`;
+    elements.targetInstruction.textContent = '그 다음, 여기 클릭';
+    elements.motorOrder.textContent = `2. ${keyLabel(target.actionCode)} 키 누르기 → 3. 빛나는 표적 클릭`;
   } else if (isCommandKey && target.grouped && code === target.actionCode && !target.commanded) {
     target.commanded = true;
     elements.motorTarget.classList.add('commanded');
-    elements.targetInstruction.textContent = '지금: 여기 클릭';
-    elements.motorOrder.textContent = `3. ${target.actionSymbol} 표적 클릭`;
+    elements.targetKey.textContent = '여기 클릭';
+    elements.targetInstruction.textContent = '마우스로 클릭하세요';
+    elements.motorOrder.textContent = '3. 빛나는 표적 클릭';
   } else {
     stats.noiseInputs += 1;
   }

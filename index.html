@@ -15,23 +15,31 @@
 <body>
   <a class="skip-link" href="#trainer">훈련으로 바로 가기</a>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="처음으로">
+    <a class="brand" href="#home" aria-label="소개 화면으로 이동">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
       <span>입력·판단 훈련</span>
     </a>
-    <nav aria-label="주요 메뉴">
-      <a href="#trainer">훈련</a>
-      <a href="#mechanism">훈련 방법</a>
-      <a href="#evidence">연구 근거</a>
+    <nav class="site-nav" aria-label="화면 선택">
+      <a data-page-link href="#home" aria-label="소개 화면">소개</a>
+      <a data-page-link href="#trainer" aria-label="훈련 화면">훈련</a>
+      <a data-page-link href="#history" aria-label="기록 화면">기록</a>
+      <a data-page-link href="#mechanism" aria-label="훈련 방법 화면"><span class="nav-full">훈련 방법</span><span class="nav-short">방법</span></a>
+      <a data-page-link href="#evidence" aria-label="연구 근거 화면"><span class="nav-full">연구 근거</span><span class="nav-short">근거</span></a>
+    </nav>
+    <nav class="page-stepper" aria-label="이전·다음 화면">
+      <a id="previous-page" href="#home" aria-label="이전 화면" hidden>←</a>
+      <span id="page-position" aria-live="polite">1 / 5</span>
+      <a id="next-page" href="#trainer" aria-label="다음 화면: 훈련">→</a>
     </nav>
     <button id="install-button" class="ghost-button" type="button" hidden>앱 설치</button>
   </header>
 
-  <main id="top">
+  <main id="page-stage">
+    <div id="home" class="page-view home-page" data-page="home" tabindex="-1" aria-labelledby="home-title">
     <section class="hero section-shell">
       <div class="hero-copy">
         <p class="eyebrow"><span class="pulse-dot"></span> 스타크래프트 입력·판단 훈련</p>
-        <h1>사용자가 입력 속도를 올리면<br><em>판단 시간이 길어지나요?</em></h1>
+        <h1 id="home-title" data-page-title>사용자가 입력 속도를 올리면<br><em>판단 시간이 길어지나요?</em></h1>
         <p class="hero-lede">숫자 키와 마우스 입력 순서에 익숙하지 않은 사용자는 다음 입력을 기억하고 확인해야 합니다. 사용자가 게임 상황도 동시에 판단하면, 사용자는 입력 순서와 게임 상황을 번갈아 확인해야 합니다. 그 결과 사용자의 판단 시간이 길어질 수 있습니다.</p>
         <div class="hero-actions">
           <a class="primary-button" href="#trainer">10분 측정·훈련 시작</a>
@@ -63,12 +71,13 @@
       <div><b>02</b><span><strong>판단 과제의 정확도가 낮다</strong>사용자는 우선순위 규칙과 피로 상태를 먼저 확인해야 합니다.</span></div>
       <div><b>03</b><span><strong>두 과제를 함께 할 때 성적이 낮다</strong>사용자는 입력과 판단을 함께 수행하는 연습을 해야 합니다.</span></div>
     </section>
+    </div>
 
-    <section id="trainer" class="trainer-section section-shell">
+    <section id="trainer" class="trainer-section section-shell page-view" data-page="trainer" tabindex="-1" aria-labelledby="trainer-title" hidden>
       <div class="section-heading">
         <div>
           <p class="eyebrow">10분 측정·훈련</p>
-          <h2>앱이 입력 속도와 판단 정확도를<br><em>각각 측정합니다</em></h2>
+          <h2 id="trainer-title" data-page-title>앱이 입력 속도와 판단 정확도를<br><em>각각 측정합니다</em></h2>
         </div>
         <p>앱은 첫 100초 동안 입력 과제와 판단 과제를 따로 측정합니다. 이후 사용자가 두 과제를 함께 수행하면, 앱은 입력 속도와 판단 정확도가 각각 얼마나 달라졌는지 계산합니다. 앱은 한 번에 한 조건만 바꿔 난이도를 조절합니다.</p>
       </div>
@@ -182,16 +191,19 @@
             <div class="result-detail" id="result-detail"></div>
             <div class="result-actions">
               <button id="restart-button" class="primary-button" type="button">한 번 더 훈련</button>
+              <a class="ghost-button" href="#history">최근 기록 보기</a>
               <button id="export-button" class="ghost-button" type="button">훈련 기록 파일 저장</button>
             </div>
           </section>
         </div>
       </div>
+    </section>
 
+    <section id="history" class="history-page section-shell page-view" data-page="history" tabindex="-1" aria-labelledby="history-title" hidden>
       <div class="history-panel">
         <div>
           <p class="eyebrow">이 기기에 저장한 최근 기록</p>
-          <h3>사용자는 앱 기록과 실제 게임 기록을 따로 비교해야 합니다</h3>
+          <h2 id="history-title" data-page-title>사용자는 앱 기록과 실제 게임 기록을<br><em>따로 비교해야 합니다</em></h2>
           <p>앱 기록은 이 훈련 과제에서 측정한 입력 속도와 판단 정확도를 보여 줍니다. 사용자는 실제 게임 리플레이를 열어 교전 중 생산 공백 시간, 보급 한도 초과 시간, 주요 판단 누락 횟수가 줄었는지 따로 확인해야 합니다.</p>
         </div>
         <div id="history-chart" class="history-chart" aria-label="최근 판단 성적 유지율 기록">
@@ -200,10 +212,10 @@
       </div>
     </section>
 
-    <section id="mechanism" class="mechanism-section">
+    <section id="mechanism" class="mechanism-section page-view" data-page="mechanism" tabindex="-1" aria-labelledby="mechanism-title" hidden>
       <div class="section-shell">
         <div class="section-heading light">
-          <div><p class="eyebrow">훈련 방법</p><h2>사용자가 입력과 판단을 함께 수행하면<br><em>사용자의 반응 시간이 길어질 수 있습니다</em></h2></div>
+          <div><p class="eyebrow">훈련 방법</p><h2 id="mechanism-title" data-page-title>사용자가 입력과 판단을 함께 수행하면<br><em>사용자의 반응 시간이 길어질 수 있습니다</em></h2></div>
           <p>사용자가 짧은 시간에 두 행동을 연속으로 선택하면, 두 번째 행동의 반응 시간이 길어질 수 있습니다. 이 앱은 사용자가 고정된 입력 순서를 연습한 뒤 입력 과제와 판단 과제를 함께 수행하게 합니다. 앱은 두 과제의 정확도가 기준을 넘을 때만 표적 표시 간격을 줄입니다.</p>
         </div>
         <div class="mechanism-grid">
@@ -215,9 +227,10 @@
       </div>
     </section>
 
-    <section id="evidence" class="evidence-section section-shell">
+    <section id="evidence" class="evidence-page page-view" data-page="evidence" tabindex="-1" aria-labelledby="evidence-title" hidden>
+      <div class="evidence-section section-shell">
       <div class="section-heading">
-        <div><p class="eyebrow">연구 근거와 한계</p><h2>이 앱은 연구자들이 확인하지 않은 효과를<br><em>주장하지 않습니다</em></h2></div>
+        <div><p class="eyebrow">연구 근거와 한계</p><h2 id="evidence-title" data-page-title>이 앱은 연구자들이 확인하지 않은 효과를<br><em>주장하지 않습니다</em></h2></div>
         <p>연구자들은 참가자에게 입력과 판단을 함께 수행하게 했습니다. 연구자들은 반복 연습, 과제 난이도, 연습 순서가 참가자의 수행 결과를 어떻게 바꾸는지도 조사했습니다. 이 앱은 그 연구 결과를 참고해 훈련 순서를 정했습니다. 연구자들은 이 앱이 스타크래프트 래더 티어를 올리는지 직접 시험하지 않았습니다.</p>
       </div>
       <div class="evidence-layout">
@@ -235,15 +248,16 @@
           <li><span>게임 훈련 연구에서 보고한 평균 효과</span><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285925" target="_blank" rel="noreferrer">Smith & Basak, 2023 <b>↗</b></a></li>
         </ol>
       </div>
+      </div>
+
+      <footer>
+        <div class="section-shell">
+          <p><strong>스타크래프트 입력·판단 훈련:</strong> 이 앱은 연구 결과를 참고해 만든 무료 실험 도구입니다. 이 프로젝트는 Blizzard와 관련이 없습니다.</p>
+          <p>이 앱은 개인정보와 훈련 기록을 서버로 보내지 않습니다. 브라우저는 훈련 기록을 브라우저 저장 공간(localStorage)에만 저장합니다.</p>
+        </div>
+      </footer>
     </section>
   </main>
-
-  <footer>
-    <div class="section-shell">
-      <p><strong>스타크래프트 입력·판단 훈련:</strong> 이 앱은 연구 결과를 참고해 만든 무료 실험 도구입니다. 이 프로젝트는 Blizzard와 관련이 없습니다.</p>
-      <p>이 앱은 개인정보와 훈련 기록을 서버로 보내지 않습니다. 브라우저는 훈련 기록을 브라우저 저장 공간(localStorage)에만 저장합니다.</p>
-    </div>
-  </footer>
 
   <div id="pause-overlay" class="pause-overlay" hidden>
     <div><span>일시정지</span><h2>앱이 훈련 시간을 멈췄습니다</h2><p>앱은 사용자가 다른 탭을 본 시간을 훈련 시간에 포함하지 않습니다.</p><button id="resume-button" class="primary-button" type="button">훈련 계속하기</button></div>

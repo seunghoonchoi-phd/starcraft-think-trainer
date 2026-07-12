@@ -12,8 +12,22 @@ import {
 import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
+const PAGE_ORDER = ['home', 'trainer', 'history', 'mechanism', 'evidence'];
+const PAGE_LABELS = {
+  home: '소개',
+  trainer: '훈련',
+  history: '기록',
+  mechanism: '훈련 방법',
+  evidence: '연구 근거'
+};
+const BASE_TITLE = '스타크래프트 입력·판단 훈련';
 const $ = (selector) => document.querySelector(selector);
 const elements = {
+  pageViews: [...document.querySelectorAll('.page-view[data-page]')],
+  pageLinks: [...document.querySelectorAll('[data-page-link]')],
+  previousPage: $('#previous-page'),
+  nextPage: $('#next-page'),
+  pagePosition: $('#page-position'),
   app: $('#app'),
   startPanel: $('#start-panel'),
   playPanel: $('#play-panel'),
@@ -78,6 +92,60 @@ const session = {
   priority: '동일 비중',
   summary: null
 };
+
+let currentPage = null;
+
+function requestedPage() {
+  const value = location.hash.slice(1);
+  if (value === 'top') return 'home';
+  return PAGE_ORDER.includes(value) ? value : 'home';
+}
+
+function showPage(focusPage = true) {
+  const pageId = requestedPage();
+  const pageIndex = PAGE_ORDER.indexOf(pageId);
+  const previousId = PAGE_ORDER[pageIndex - 1];
+  const nextId = PAGE_ORDER[pageIndex + 1];
+
+  if (location.hash && location.hash !== `#${pageId}`) {
+    window.history.replaceState(null, '', `${location.pathname}${location.search}#${pageId}`);
+  }
+  if (currentPage === 'trainer' && pageId !== 'trainer' && session.running && !session.paused) {
+    pauseSession('page');
+  }
+
+  elements.pageViews.forEach((view) => {
+    const active = view.dataset.page === pageId;
+    view.hidden = !active;
+    view.classList.toggle('is-active', active);
+  });
+  elements.pageLinks.forEach((link) => {
+    if (link.getAttribute('href') === `#${pageId}`) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+
+  elements.previousPage.hidden = !previousId;
+  if (previousId) {
+    elements.previousPage.href = `#${previousId}`;
+    elements.previousPage.setAttribute('aria-label', `이전 화면: ${PAGE_LABELS[previousId]}`);
+  }
+  elements.nextPage.hidden = !nextId;
+  if (nextId) {
+    elements.nextPage.href = `#${nextId}`;
+    elements.nextPage.setAttribute('aria-label', `다음 화면: ${PAGE_LABELS[nextId]}`);
+  }
+  elements.pagePosition.textContent = `${pageIndex + 1} / ${PAGE_ORDER.length}`;
+  elements.pauseOverlay.hidden = pageId !== 'trainer' || !session.paused;
+  document.body.dataset.currentPage = pageId;
+  document.title = pageId === 'home' ? BASE_TITLE : `${PAGE_LABELS[pageId]} | ${BASE_TITLE}`;
+  currentPage = pageId;
+  window.scrollTo(0, 0);
+
+  if (focusPage) {
+    const activeView = elements.pageViews.find((view) => view.dataset.page === pageId);
+    activeView?.focus({ preventScroll: true });
+  }
+}
 
 function loadStore() {
   try {
@@ -149,7 +217,6 @@ function startSession(demo = false) {
   elements.resultPanel.hidden = true;
   elements.playPanel.hidden = false;
   elements.app.dataset.state = 'playing';
-  elements.app.scrollIntoView({ block: 'start', behavior: 'smooth' });
   elements.phaseList.querySelectorAll('li').forEach((item) => item.classList.remove('active', 'done'));
   setupPhase();
   session.lastTick = performance.now();
@@ -465,13 +532,18 @@ function renderResult(summary) {
   elements.resultDetail.innerHTML = `입력만 수행한 구간에서 사용자는 분당 <strong>${baselineRate}</strong>개의 동작을 완료했습니다. 입력과 판단을 함께 수행한 구간에서는 사용자가 분당 <strong>${combinedRate}</strong>개의 동작을 완료했습니다. 사용자의 판단 정확도는 <strong>${baselineDecision}</strong>에서 <strong>${combinedDecision}</strong>로 바뀌었습니다. 이 앱의 기록이 좋아져도 사용자는 실제 게임 리플레이에서 생산 공백 시간과 판단 누락 횟수가 줄었는지 따로 확인해야 합니다.`;
 }
 
-function pauseSession(auto = false) {
+function pauseSession(reason = 'manual') {
   if (!session.running || session.paused) return;
   session.paused = true;
   window.clearTimeout(session.motorTimer);
   window.clearTimeout(session.decisionTimer);
-  elements.pauseOverlay.hidden = false;
-  elements.pauseOverlay.querySelector('p').textContent = auto ? '앱은 사용자가 다른 탭을 본 시간을 훈련 시간에 포함하지 않습니다.' : '앱은 사용자가 일시정지한 시간을 훈련 시간에 포함하지 않습니다.';
+  const messages = {
+    tab: '앱은 사용자가 다른 탭을 본 시간을 훈련 시간에 포함하지 않습니다.',
+    page: '앱은 사용자가 다른 화면을 본 시간을 훈련 시간에 포함하지 않습니다.',
+    manual: '앱은 사용자가 일시정지한 시간을 훈련 시간에 포함하지 않습니다.'
+  };
+  elements.pauseOverlay.hidden = currentPage !== 'trainer';
+  elements.pauseOverlay.querySelector('p').textContent = messages[reason] || messages.manual;
 }
 
 function resumeSession() {
@@ -480,7 +552,12 @@ function resumeSession() {
   elements.pauseOverlay.hidden = true;
   session.lastTick = performance.now();
   if (hasMotor()) scheduleMotor();
-  if (hasDecision() && !session.currentDecision) scheduleDecision(700);
+  if (hasDecision() && session.currentDecision) {
+    session.currentDecision.shownAt = performance.now();
+    session.decisionTimer = window.setTimeout(() => closeDecision(false), 4200);
+  } else if (hasDecision()) {
+    scheduleDecision(700);
+  }
   elements.mapBoard.focus({ preventScroll: true });
 }
 
@@ -504,7 +581,7 @@ elements.restartButton.addEventListener('click', () => {
 });
 elements.exportButton.addEventListener('click', exportRecords);
 elements.motorTarget.addEventListener('click', handleTargetClick);
-elements.pauseButton.addEventListener('click', () => pauseSession(false));
+elements.pauseButton.addEventListener('click', () => pauseSession('manual'));
 elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
@@ -515,8 +592,9 @@ window.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) pauseSession(true);
+  if (document.hidden) pauseSession('tab');
 });
+window.addEventListener('hashchange', () => showPage(true));
 
 let deferredInstall = null;
 window.addEventListener('beforeinstallprompt', (event) => {
@@ -535,4 +613,5 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 
+showPage(false);
 renderHistory();

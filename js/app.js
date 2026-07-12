@@ -681,7 +681,10 @@ function showPauseReview() {
   elements.pauseReview.querySelector('h4').textContent = `${goal.label} 우선순위 다시 보기`;
   elements.pauseReview.querySelector('p').textContent = `${goal.rule} 순서가 기억나면 훈련을 계속하세요.`;
   elements.pauseReviewList.innerHTML = orderedGuide.map((item, index) => `
-    <li><b>${String(index + 1).padStart(2, '0')}</b><span>${item.action}</span></li>`).join('');
+    <li>
+      <div class="pause-review-art" aria-hidden="true">${situationGraphic(item.id)}</div>
+      <div><b>${String(index + 1).padStart(2, '0')}</b><span>${item.action}</span><small>${item.condition}</small></div>
+    </li>`).join('');
   elements.pauseReview.hidden = false;
   elements.decisionCard.hidden = false;
   elements.decisionCard.dataset.state = 'paused';

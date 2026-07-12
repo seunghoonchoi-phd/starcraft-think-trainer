@@ -22,8 +22,8 @@ const elements = {
   playPanel: $('#play-panel'),
   resultPanel: $('#result-panel'),
   startButton: $('#start-button'),
-  tutorialButton: $('#tutorial-button'),
-  demoButton: $('#demo-button'),
+  motorTutorialButton: $('#motor-tutorial-button'),
+  decisionTutorialButton: $('#decision-tutorial-button'),
   restartButton: $('#restart-button'),
   exportButton: $('#export-button'),
   totalTimeLabel: $('#total-time-label'),
@@ -104,7 +104,7 @@ const session = {
 };
 
 let currentPage = 'trainer';
-const tutorial = { active: false, index: 0, answered: false, kind: 'decision', onComplete: null };
+const tutorial = { active: false, index: 0, answered: false, kind: 'decision', onComplete: null, motorStep: 0 };
 const PHASE_TUTORIALS = {
   prepare: {
     title: '훈련을 시작하기 전에 규칙을 확인합니다',
@@ -205,13 +205,13 @@ function isUnlimited(phase = activePhase()) {
 }
 
 function phasesForSession(demo, qaMode) {
-  const timedPhases = PHASES.filter((phase) => !phase.practiceOnly);
-  if (qaMode) return timedPhases.map((phase) => ({ ...phase, seconds: 1.5 }));
-  return demo ? DEMO_PHASES.filter((phase) => !phase.practiceOnly) : timedPhases;
+  if (qaMode) return PHASES.map((phase) => ({ ...phase, seconds: 1.5 }));
+  return demo ? DEMO_PHASES : PHASES;
 }
 
 function phaseNumber(phase) {
-  return PHASES.findIndex((candidate) => candidate.id === phase.id) + 1;
+  const matched = PHASES.find((candidate) => candidate.id === phase.id);
+  return phase.displayNumber || matched?.displayNumber || PHASES.findIndex((candidate) => candidate.id === phase.id) + 1;
 }
 
 function startSession(demo = false, practicePhaseId = null) {
@@ -250,7 +250,7 @@ function startSession(demo = false, practicePhaseId = null) {
 function beginPhase() {
   const phase = activePhase();
   if (!phase) return;
-  if (!session.tutorialsSeen.has(phase.id)) {
+  if (phase.id !== 'challenge' && !session.tutorialsSeen.has(phase.id)) {
     session.tutorialsSeen.add(phase.id);
     openPhaseTutorial(phase, () => {
       if (!session.running || activePhase()?.id !== phase.id) return;
@@ -297,7 +297,7 @@ function setupPhase() {
   updateLiveMetrics();
 
   if (hasMotor(phase)) {
-    if (phase.id === 'challenge') session.motorInterval = 720;
+    if (phase.id === 'challenge') session.motorInterval = 1440;
     spawnMotorTarget();
     scheduleMotor();
   }
@@ -308,6 +308,7 @@ function updatePhaseRail() {
   const phase = activePhase();
   const currentNumber = phaseNumber(phase);
   elements.phaseList.querySelectorAll('li').forEach((item) => {
+    if (!item.dataset.phase) return;
     const itemNumber = phaseNumber({ id: item.dataset.phase });
     const active = item.dataset.phase === phase.id;
     item.classList.toggle('active', active);
@@ -455,7 +456,7 @@ function scheduleDecision(delay = 900) {
 }
 
 function decisionAnswerMs(phase = activePhase()) {
-  return phase?.id === 'challenge' ? 2000 : DECISION_ANSWER_MS;
+  return phase?.id === 'challenge' ? 4000 : DECISION_ANSWER_MS;
 }
 
 function situationGraphic(id) {
@@ -486,6 +487,18 @@ function openDecisionTutorial(onComplete = null) {
   tutorial.answered = false;
   tutorial.kind = 'decision';
   tutorial.onComplete = onComplete;
+  elements.tutorialPanel.hidden = false;
+  renderTutorial();
+  elements.tutorialPanel.querySelector('.tutorial-card')?.focus({ preventScroll: true });
+}
+
+function openMotorTutorial() {
+  tutorial.active = true;
+  tutorial.index = 0;
+  tutorial.answered = false;
+  tutorial.kind = 'motor';
+  tutorial.motorStep = 0;
+  tutorial.onComplete = null;
   elements.tutorialPanel.hidden = false;
   renderTutorial();
   elements.tutorialPanel.querySelector('.tutorial-card')?.focus({ preventScroll: true });
@@ -532,7 +545,79 @@ function renderTutorial() {
     renderPhaseTutorial();
     return;
   }
+  if (tutorial.kind === 'motor') {
+    renderMotorTutorial();
+    return;
+  }
   renderDecisionTutorial();
+}
+
+function renderMotorTutorial() {
+  const step = tutorial.motorStep;
+  const state = step === 0 ? 'key' : (step === 1 ? 'click' : 'complete');
+  const copy = {
+    key: {
+      title: '3 키를 누르세요',
+      prompt: '키보드에서 3 키를 한 번 누르세요.',
+      question: '지금은 마우스를 클릭하지 않습니다.',
+      feedback: '3 키를 누르면 표적을 클릭하는 단계가 시작됩니다.'
+    },
+    click: {
+      title: '이제 빛나는 표적을 클릭하세요',
+      prompt: '3 키를 눌렀습니다. 아래 빛나는 표적을 마우스로 클릭하세요.',
+      question: '숫자 키를 다시 누르지 말고 표적을 클릭하세요.',
+      feedback: '표적을 클릭하면 입력 한 번이 완료됩니다.'
+    },
+    complete: {
+      title: '잘했어요',
+      prompt: '사용자는 3 키를 누른 뒤 해당 표적을 클릭했습니다.',
+      question: '이 모드에서는 표적에 표시된 숫자 키를 누른 뒤 그 표적을 클릭합니다.',
+      feedback: '입력 규칙을 이해했습니다. 이제 최고 난도 복합을 시작할 수 있습니다.'
+    }
+  }[state];
+  elements.tutorialProgress.textContent = `키 입력 튜토리얼 ${step + 1} / 3`;
+  elements.tutorialTitle.textContent = copy.title;
+  elements.tutorialScene.innerHTML = `<div class="motor-tutorial-board motor-tutorial-board--${state}">
+    <kbd>${state === 'key' ? '3' : (state === 'click' ? '3 ✓' : '완료')}</kbd>
+    <button id="motor-tutorial-target" type="button">${state === 'key' ? '표적' : (state === 'click' ? '여기 클릭' : '잘했어요')}</button>
+  </div>`;
+  elements.tutorialPrompt.textContent = copy.prompt;
+  elements.tutorialQuestion.textContent = copy.question;
+  elements.tutorialOptions.hidden = true;
+  elements.tutorialOptions.innerHTML = '';
+  elements.tutorialFeedback.textContent = copy.feedback;
+  elements.tutorialFeedback.className = 'tutorial-feedback';
+  elements.tutorialNext.textContent = '튜토리얼 완료';
+  elements.tutorialNext.hidden = state !== 'complete';
+  elements.tutorialScene.querySelector('#motor-tutorial-target').addEventListener('click', answerMotorTutorialClick);
+}
+
+function handleMotorTutorialKey(code) {
+  if (!tutorial.active || tutorial.kind !== 'motor') return;
+  if (tutorial.motorStep !== 0) {
+    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 빛나는 표적을 클릭하는 겁니다.';
+    elements.tutorialFeedback.classList.add('is-wrong');
+    return;
+  }
+  if (code === 'Digit3') {
+    tutorial.motorStep = 1;
+    renderMotorTutorial();
+    return;
+  }
+  elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 3 키를 누르는 겁니다.';
+  elements.tutorialFeedback.classList.add('is-wrong');
+}
+
+function answerMotorTutorialClick() {
+  if (!tutorial.active || tutorial.kind !== 'motor') return;
+  if (tutorial.motorStep !== 1) {
+    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 3 키를 누른 뒤 해당 표적을 클릭하는 겁니다.';
+    elements.tutorialFeedback.classList.add('is-wrong');
+    return;
+  }
+  tutorial.motorStep = 2;
+  tutorial.answered = true;
+  renderMotorTutorial();
 }
 
 function renderPhaseTutorial() {
@@ -647,7 +732,7 @@ function showDecision() {
   });
   elements.decisionFeedback.textContent = '';
   elements.decisionFeedback.className = 'decision-feedback';
-  elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 2초' : '응답 3초';
+  elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 4초' : '응답 3초';
   elements.decisionCard.dataset.state = 'answering';
   elements.decisionCard.hidden = false;
   window.clearTimeout(session.decisionTimer);
@@ -689,7 +774,10 @@ function closeDecision(answered) {
   delete elements.decisionCard.dataset.state;
   elements.decisionCard.hidden = true;
   updateLiveMetrics();
-  if (session.running && !session.paused && hasDecision()) scheduleDecision(700 + Math.random() * 650);
+  if (session.running && !session.paused && hasDecision()) {
+    const gap = activePhase().id === 'challenge' ? 1400 + Math.random() * 1300 : 700 + Math.random() * 650;
+    scheduleDecision(gap);
+  }
 }
 
 function updateLiveMetrics() {
@@ -840,7 +928,7 @@ function resumeSession() {
   if (hasMotor()) scheduleMotor();
   if (hasDecision() && session.currentDecision) {
     session.currentDecision.shownAt = performance.now();
-    elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 2초' : '응답 3초';
+    elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 4초' : '응답 3초';
     session.decisionTimer = window.setTimeout(() => closeDecision(false), decisionAnswerMs());
   } else if (hasDecision()) {
     scheduleDecision(700);
@@ -859,13 +947,17 @@ function exportRecords() {
 }
 
 elements.startButton.addEventListener('click', () => startSession(false));
-elements.tutorialButton.addEventListener('click', () => openDecisionTutorial());
-elements.demoButton.addEventListener('click', () => startSession(true));
+elements.motorTutorialButton.addEventListener('click', openMotorTutorial);
+elements.decisionTutorialButton.addEventListener('click', () => openDecisionTutorial());
 elements.tutorialClose.addEventListener('click', () => closeTutorial('', Boolean(tutorial.onComplete)));
 elements.tutorialNext.addEventListener('click', () => {
   if (!tutorial.active) return;
   if (tutorial.kind === 'phase') {
     finishTutorial();
+    return;
+  }
+  if (tutorial.kind === 'motor') {
+    if (tutorial.answered) finishTutorial('키 입력 튜토리얼을 완료했습니다.');
     return;
   }
   if (!tutorial.answered) return;
@@ -893,7 +985,15 @@ elements.resumeButton.addEventListener('click', resumeSession);
 elements.pauseReviewResume.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
-  if (event.repeat || tutorial.active || !session.running || session.paused) return;
+  if (event.repeat) return;
+  if (tutorial.active) {
+    if (tutorial.kind === 'motor') {
+      if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(event.code)) event.preventDefault();
+      handleMotorTutorialKey(event.code);
+    }
+    return;
+  }
+  if (!session.running || session.paused) return;
   if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
   if (answerDecision(event.code)) return;
   handleMotorKey(event.code);

@@ -209,7 +209,7 @@ export function createDecision(goalId = 'balance', options = {}) {
 export function goalForPhase(phaseId, elapsedSeconds) {
   if (phaseId === 'switch' || phaseId === 'challenge') {
     const rotation = ['survive', 'grow', 'attack'];
-    const interval = phaseId === 'challenge' ? 10 : 16;
+    const interval = phaseId === 'challenge' ? 20 : 16;
     return rotation[Math.floor(elapsedSeconds / interval) % rotation.length];
   }
   return 'balance';

@@ -189,8 +189,9 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .rail-guide { margin: 16px 8px 6px; color: #718398; font-size: 11px; line-height: 1.5; }
 .session-rail ol { list-style: none; padding: 16px 0 0; margin: 0; display: grid; gap: 5px; }
 .session-rail li { border-radius: 9px; color: #74879c; transition: background .2s, color .2s; }
-.phase-button { width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 8px; color: inherit; border: 0; border-radius: inherit; background: transparent; text-align: left; cursor: pointer; font: inherit; }
-.phase-button:hover, .phase-button:focus-visible { color: var(--white); background: rgba(255,255,255,.07); outline: none; }
+.phase-button, .tutorial-mode-button { width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 8px; color: inherit; border: 0; border-radius: inherit; background: transparent; text-align: left; cursor: pointer; font: inherit; }
+.phase-button:hover, .phase-button:focus-visible, .tutorial-mode-button:hover, .tutorial-mode-button:focus-visible { color: var(--white); background: rgba(255,255,255,.07); outline: none; }
+.tutorial-mode-button b { color: var(--cyan); }
 .session-rail li b { font: 600 10px "IBM Plex Mono", monospace; }
 .session-rail li span, .session-rail li small { display: block; }
 .session-rail li span { font-size: 13px; font-weight: 700; }
@@ -221,6 +222,12 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .tutorial-scene svg { width: min(440px, 90%); height: 150px; }
 .tutorial-steps { width: min(560px, 88%); margin: 0; padding-left: 28px; color: var(--white); font-size: 18px; font-weight: 800; line-height: 1.85; }
 .tutorial-steps li::marker { color: var(--cyan); font-family: "IBM Plex Mono", monospace; }
+.motor-tutorial-board { width: min(560px, 92%); min-height: 180px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: center; justify-items: center; }
+.motor-tutorial-board kbd { display: grid; place-items: center; width: 104px; height: 104px; border: 2px solid var(--cyan); border-radius: 16px; color: var(--cyan); background: #07111f; font: 800 46px "IBM Plex Mono", monospace; }
+.motor-tutorial-board button { width: 148px; min-height: 82px; border: 0; border-radius: 14px; color: var(--ink); background: #6c8194; font-size: 17px; font-weight: 900; cursor: pointer; }
+.motor-tutorial-board--click button { background: var(--cyan); box-shadow: 0 0 0 8px rgba(83,226,202,.12), 0 0 28px rgba(83,226,202,.28); }
+.motor-tutorial-board--complete button { background: var(--cyan); cursor: default; }
+.motor-tutorial-board--complete kbd { width: 124px; color: var(--yellow); border-color: var(--yellow); font-size: 23px; }
 .priority-memory { width: min(600px, 92%); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 0; padding: 0; list-style: none; }
 .priority-memory li { display: grid; grid-template-columns: 36px 1fr; gap: 9px; align-items: start; padding: 11px; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; background: rgba(7,17,31,.4); }
 .priority-memory b { color: var(--orange); font: 800 12px "IBM Plex Mono", monospace; }

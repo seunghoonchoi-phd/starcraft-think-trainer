@@ -1,13 +1,5 @@
 export const PHASES = [
-  { id: 'prepare', name: '준비', seconds: 20, mode: 'none' },
-  { id: 'motor', name: '입력 기준선', seconds: 60, mode: 'motor' },
-  { id: 'decision', name: '판단 기준선', seconds: 40, mode: 'decision' },
-  { id: 'dual', name: '동시 수행', seconds: 120, mode: 'dual' },
-  { id: 'priority', name: '우선 과제 변경', seconds: 120, mode: 'dual' },
-  { id: 'switch', name: '판단 규칙 변경', seconds: 70, mode: 'dual' },
-  { id: 'inhibit', name: '입력 억제', seconds: 60, mode: 'dual' },
-  { id: 'transfer', name: '변경 조건 검사', seconds: 110, mode: 'dual' },
-  { id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, practiceOnly: true }
+  { id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, displayNumber: 3 }
 ];
 
 export const DEMO_PHASES = PHASES.map((phase) => ({

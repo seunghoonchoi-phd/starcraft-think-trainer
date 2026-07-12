@@ -10,10 +10,10 @@ import {
   summarizePhase
 } from '../js/engine.js';
 
-test('real session is exactly 600 seconds', () => {
-  assert.equal(PHASES.reduce((sum, phase) => sum + phase.seconds, 0), 600);
+test('only the unlimited highest-difficulty phase remains', () => {
+  assert.equal(PHASES.length, 1);
   assert.deepEqual(PHASES.find((phase) => phase.id === 'challenge'), {
-    id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, practiceOnly: true
+    id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, displayNumber: 3
   });
 });
 

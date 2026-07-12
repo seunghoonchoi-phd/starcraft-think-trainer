@@ -171,7 +171,8 @@ export function createDecision(goalId = 'balance', options = {}) {
   const transfer = Boolean(options.transfer);
   const bannedCorrectIds = new Set(options.bannedCorrectIds || []);
   const goal = GOALS[goalId] || GOALS.balance;
-  const ids = shuffle(Object.keys(ISSUES), random).slice(0, 3);
+  const eligibleIds = Object.keys(ISSUES).filter((id) => !bannedCorrectIds.has(id));
+  const ids = shuffle(eligibleIds, random).slice(0, 3);
   const ranked = ids.slice().sort((a, b) => goal.priority.indexOf(a) - goal.priority.indexOf(b));
   const correctId = ranked.find((id) => !bannedCorrectIds.has(id)) || ranked[0];
   const keyCodes = ['KeyQ', 'KeyW', 'KeyE'];

@@ -44,10 +44,11 @@ test('decision can place the correct answer at any requested key', () => {
   }
 });
 
-test('banned priority items cannot become the correct answer', () => {
+test('banned priority items do not appear in the situation panel or as the correct answer', () => {
   const decision = createDecision('balance', { random: seededRandom([0.1, 0.7, 0.3, 0.9]), bannedCorrectIds: ['defend', 'supply'] });
   assert.notEqual(decision.correctId, 'defend');
   assert.notEqual(decision.correctId, 'supply');
+  assert.ok(decision.issues.every((issue) => !['defend', 'supply'].includes(issue.id)));
 });
 
 test('priority phase rotates all three priorities', () => {

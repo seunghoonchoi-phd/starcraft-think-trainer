@@ -1,4 +1,4 @@
-const CACHE = 'think-hands-v8';
+const CACHE = 'think-hands-v9';
 const ASSETS = [
   './',
   './index.html',

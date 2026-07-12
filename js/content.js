@@ -174,14 +174,21 @@ export function createDecision(goalId = 'balance', options = {}) {
   const ranked = ids.slice().sort((a, b) => goal.priority.indexOf(a) - goal.priority.indexOf(b));
   const correctId = ranked[0];
   const keyCodes = ['KeyQ', 'KeyW', 'KeyE'];
-  const optionIds = shuffle(ids, random);
-  const decisionOptions = optionIds.map((id, index) => ({ code: keyCodes[index], id, label: ISSUES[id].action }));
-  const issueLines = ids.map((id) => {
+  const positionLabels = ['왼쪽', '가운데', '오른쪽'];
+  const decisionOptions = ids.map((id, index) => ({
+    code: keyCodes[index],
+    id,
+    label: ISSUES[id].action,
+    positionLabel: positionLabels[index]
+  }));
+  const issueLines = ids.map((id, index) => {
     const source = transfer && ISSUES[id].transfer.length ? ISSUES[id].transfer : ISSUES[id].lines;
     return {
       id,
       text: source[Math.floor(random() * source.length)],
-      visual: ISSUES[id].visual
+      visual: ISSUES[id].visual,
+      keyCode: keyCodes[index],
+      positionLabel: positionLabels[index]
     };
   });
   sequence += 1;

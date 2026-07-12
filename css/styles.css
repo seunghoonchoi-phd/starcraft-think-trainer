@@ -302,7 +302,8 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .situation-art .route.danger, .situation-art .route.warn, .situation-art .route.friendly, .tutorial-scene .route.danger, .tutorial-scene .route.warn, .tutorial-scene .route.friendly { stroke-width: 3; }
 .situation-art .arrow, .tutorial-scene .arrow { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .situation-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; padding: 7px 8px; }
-.situation-caption strong { color: var(--white); font: 700 12px "IBM Plex Mono", monospace; }
+.situation-caption strong { display: flex; align-items: center; gap: 5px; color: var(--white); font: 700 12px "IBM Plex Mono", monospace; }
+.situation-key { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 4px; background: #07111f; color: var(--cyan); font: 800 9px "IBM Plex Mono", monospace; }
 .situation-caption span { min-width: 0; overflow: hidden; color: #97a8b7; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .situation-description { margin: 0; padding: 0 8px 8px; color: #c4d0da; font-size: 10px; line-height: 1.45; word-break: keep-all; }
 .decision-options { display: grid; gap: 7px; margin-top: auto; }
@@ -310,7 +311,8 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .decision-option:hover, .decision-option:focus-visible { border-color: var(--cyan); background: #1b354a; }
 .decision-option:disabled { cursor: not-allowed; }
 .decision-option kbd { display: grid; place-items: center; width: 28px; height: 26px; border-radius: 5px; background: #07111f; color: var(--cyan); font-size: 11px; }
-.decision-option span { font-size: 11px; font-weight: 700; }
+.decision-option span { display: grid; gap: 2px; font-size: 11px; font-weight: 700; }
+.decision-option span small { color: #89a0b5; font-size: 9px; font-weight: 700; }
 .decision-feedback { min-height: 30px; margin: 8px 0 0 !important; color: var(--cyan) !important; }
 .decision-feedback.wrong { color: var(--red) !important; }
 

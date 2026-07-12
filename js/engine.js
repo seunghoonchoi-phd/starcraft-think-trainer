@@ -15,13 +15,13 @@ export const DEMO_PHASES = PHASES.map((phase) => ({
 }));
 
 export const MOTOR_ORDERS = {
-  practice: ['Digit1', 'Digit2', 'Digit3'],
-  transfer: ['Digit3', 'Digit1', 'Digit2']
+  practice: ['Digit1', 'Digit2', 'Digit3', 'Digit4'],
+  transfer: ['Digit4', 'Digit2', 'Digit1', 'Digit3']
 };
 
-export function createMotorCommand(index, phaseId) {
+export function createMotorCommand(index, phaseId, random = Math.random) {
   const order = phaseId === 'transfer' ? MOTOR_ORDERS.transfer : MOTOR_ORDERS.practice;
-  return { groupCode: order[index % order.length] };
+  return { groupCode: order[Math.min(order.length - 1, Math.floor(random() * order.length))] };
 }
 
 export function clamp(value, min, max) {

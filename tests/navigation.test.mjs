@@ -60,6 +60,8 @@ test('the trainer exposes immediate start, stage practice, pause, and home contr
   assert.match(app, /const PHASE_TUTORIALS =/);
   assert.match(app, /PRIORITY_GUIDE/);
   assert.match(app, /function renderPriorityGuide\(\)/);
+  assert.match(app, /positionLabel} 상황/);
+  assert.match(app, /'Digit1', 'Digit2', 'Digit3', 'Digit4'/);
   assert.match(app, /function beginPhase\(\)/);
   assert.match(app, /function openPhaseTutorial\(phase, onComplete\)/);
   assert.match(app, /튜토리얼을 닫았습니다\. 홈에서 원하는 단계를 다시 선택하세요/);

@@ -23,6 +23,13 @@ test('switch phase rotates explicit goals', () => {
   assert.equal(goalForPhase('dual', 50), 'balance');
 });
 
+test('decision keys follow the left-to-right situation order', () => {
+  const decision = createDecision('balance', { random: () => 0.25 });
+  assert.deepEqual(decision.options.map((item) => item.code), ['KeyQ', 'KeyW', 'KeyE']);
+  assert.deepEqual(decision.options.map((item) => item.id), decision.issues.map((item) => item.id));
+  assert.deepEqual(decision.options.map((item) => item.positionLabel), ['왼쪽', '가운데', '오른쪽']);
+});
+
 test('priority phase rotates all three priorities', () => {
   assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');

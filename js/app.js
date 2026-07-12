@@ -110,7 +110,7 @@ const PHASE_TUTORIALS = {
   motor: {
     title: '입력 기준선: 세 단계를 순서대로 수행합니다',
     prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
-    steps: ['표적 안에 표시된 숫자 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
+    steps: ['표적 안에 무작위로 표시된 1, 2, 3, 4 중 한 숫자 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
   },
   dual: {
     title: '동시 수행: 입력과 판단을 함께 수행합니다',
@@ -375,7 +375,7 @@ function expireTarget() {
 
 function handleMotorKey(code) {
   if (!session.running || session.paused || !hasMotor()) return false;
-  const isGroupKey = ['Digit1', 'Digit2', 'Digit3'].includes(code);
+  const isGroupKey = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(code);
   if (!isGroupKey) return false;
   const stats = session.stats[activePhase().id];
   const target = session.currentTarget;
@@ -449,7 +449,7 @@ function renderSituation(decision) {
   elements.situationVisual.innerHTML = decision.issues.map((issue) => `
     <article class="situation-signal situation-signal--${issue.id}" aria-label="${issue.visual.description}">
       <div class="situation-art" aria-hidden="true">${situationGraphic(issue.id)}</div>
-      <div class="situation-caption"><strong>${issue.visual.metric}</strong><span>${issue.visual.label}</span></div>
+      <div class="situation-caption"><strong><kbd class="situation-key">${keyLabel(issue.keyCode)}</kbd>${issue.visual.metric}</strong><span>${issue.positionLabel} · ${issue.visual.label}</span></div>
       <p class="situation-description">${issue.visual.prompt}</p>
     </article>`).join('');
 }
@@ -597,7 +597,7 @@ function showDecision() {
   renderSituation(decision);
   elements.decisionOptions.innerHTML = decision.options.map((option) => `
     <button class="decision-option" type="button" data-code="${option.code}">
-      <kbd>${keyLabel(option.code)}</kbd><span>${option.label}</span>
+       <kbd>${keyLabel(option.code)}</kbd><span><small>${option.positionLabel} 상황</small>${option.label}</span>
     </button>`).join('');
   elements.decisionOptions.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', () => answerDecision(button.dataset.code));
@@ -843,7 +843,7 @@ elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
   if (event.repeat || tutorial.active || !session.running || session.paused) return;
-  if (['Digit1', 'Digit2', 'Digit3', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
+  if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
   if (answerDecision(event.code)) return;
   handleMotorKey(event.code);
 });

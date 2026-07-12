@@ -175,13 +175,17 @@ export function createDecision(goalId = 'balance', options = {}) {
   const correctId = ranked[0];
   const keyCodes = ['KeyQ', 'KeyW', 'KeyE'];
   const positionLabels = ['왼쪽', '가운데', '오른쪽'];
-  const decisionOptions = ids.map((id, index) => ({
+  const requestedIndex = keyCodes.indexOf(options.correctCode);
+  const correctIndex = requestedIndex >= 0 ? requestedIndex : Math.floor(random() * keyCodes.length);
+  const otherIds = shuffle(ids.filter((id) => id !== correctId), random);
+  const positionedIds = keyCodes.map((_, index) => index === correctIndex ? correctId : otherIds.shift());
+  const decisionOptions = positionedIds.map((id, index) => ({
     code: keyCodes[index],
     id,
     label: ISSUES[id].action,
     positionLabel: positionLabels[index]
   }));
-  const issueLines = ids.map((id, index) => {
+  const issueLines = positionedIds.map((id, index) => {
     const source = transfer && ISSUES[id].transfer.length ? ISSUES[id].transfer : ISSUES[id].lines;
     return {
       id,

@@ -98,6 +98,9 @@ const session = {
   currentTarget: null,
   currentDecision: null,
   motorIndex: 0,
+  decisionKeyCycle: [],
+  decisionKeyIndex: 0,
+  lastDecisionKey: '',
   priority: '동일 비중',
   summary: null,
   tutorialsSeen: new Set()
@@ -274,6 +277,7 @@ function setupPhase() {
   session.phaseRemaining = phase.seconds;
   session.phaseElapsed = 0;
   session.motorIndex = 0;
+  resetDecisionKeyCycle();
   session.stats[phase.id] = blankStats();
   elements.phaseNumber.textContent = String(phaseNumber(phase)).padStart(2, '0');
   elements.phaseName.textContent = phase.name;
@@ -700,6 +704,25 @@ function hidePauseReview() {
   if (elements.decisionCard.dataset.state === 'paused') delete elements.decisionCard.dataset.state;
 }
 
+function resetDecisionKeyCycle() {
+  const keys = ['KeyQ', 'KeyW', 'KeyE'];
+  for (let index = keys.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [keys[index], keys[swapIndex]] = [keys[swapIndex], keys[index]];
+  }
+  if (session.lastDecisionKey && keys[0] === session.lastDecisionKey) [keys[0], keys[1]] = [keys[1], keys[0]];
+  session.decisionKeyCycle = keys;
+  session.decisionKeyIndex = 0;
+}
+
+function nextDecisionKey() {
+  if (session.decisionKeyIndex >= session.decisionKeyCycle.length) resetDecisionKeyCycle();
+  const key = session.decisionKeyCycle[session.decisionKeyIndex];
+  session.decisionKeyIndex += 1;
+  session.lastDecisionKey = key;
+  return key;
+}
+
 function answerTutorial(answerId) {
   if (!tutorial.active || tutorial.kind !== 'decision' || tutorial.answered) return;
   const item = TUTORIAL_CASES[tutorial.index];
@@ -723,7 +746,7 @@ function showDecision() {
   const phase = activePhase();
   const goalId = phase.id === 'challenge' ? 'balance' : goalForPhase(phase.id, session.phaseElapsed);
   session.currentDecision = {
-    ...createDecision(goalId, { transfer: phase.id === 'transfer' }),
+    ...createDecision(goalId, { transfer: phase.id === 'transfer', correctCode: nextDecisionKey() }),
     shownAt: performance.now(),
     ready: true,
     answered: false

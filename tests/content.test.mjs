@@ -37,6 +37,13 @@ test('decision keys follow the left-to-right situation order', () => {
   assert.deepEqual(decision.options.map((item) => item.positionLabel), ['왼쪽', '가운데', '오른쪽']);
 });
 
+test('decision can place the correct answer at any requested key', () => {
+  for (const correctCode of ['KeyQ', 'KeyW', 'KeyE']) {
+    const decision = createDecision('balance', { random: seededRandom([0.1, 0.7, 0.3, 0.9]), correctCode });
+    assert.equal(decision.correctCode, correctCode);
+  }
+});
+
 test('priority phase rotates all three priorities', () => {
   assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');

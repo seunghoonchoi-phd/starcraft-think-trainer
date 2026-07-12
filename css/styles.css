@@ -293,7 +293,7 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .motor-key-marker span, .motor-key-marker small { position: relative; z-index: 1; display: block; }
 .motor-key-marker span { font: 800 18px "IBM Plex Mono", monospace; }
 .motor-key-marker small { margin-top: 5px; font-size: 10px; font-weight: 800; }
-.motor-key-marker.keyed { background: var(--cyan); box-shadow: 0 0 0 8px rgba(83,226,202,.14), 0 0 32px rgba(83,226,202,.24); }
+.motor-key-marker.keyed { background: var(--yellow); box-shadow: 0 0 0 8px rgba(246,199,93,.2), 0 0 36px rgba(246,199,93,.32); }
 .motor-target { position: absolute; z-index: 5; width: 148px; min-height: 82px; padding: 10px; transform: translate(-50%,-50%); color: var(--ink); border: 0; border-radius: 14px; background: var(--blue); cursor: crosshair; box-shadow: 0 0 0 7px rgba(97,168,255,.13), 0 0 32px rgba(97,168,255,.28); animation: target-in .16s ease-out; }
 .motor-target::before { content: ""; position: absolute; inset: 7px; border: 2px solid rgba(7,17,31,.25); border-radius: 9px; }
 .motor-target span { position: relative; z-index: 1; display: block; font: 800 16px "IBM Plex Mono", monospace; white-space: nowrap; }

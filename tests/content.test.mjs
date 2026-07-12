@@ -51,6 +51,14 @@ test('banned priority items do not appear in the situation panel or as the corre
   assert.ok(decision.issues.every((issue) => !['defend', 'supply'].includes(issue.id)));
 });
 
+test('four bans leave a fixed two-choice Q and W decision', () => {
+  const bannedCorrectIds = ['defend', 'supply', 'produce', 'scout'];
+  const decision = createDecision('balance', { random: seededRandom([0.1, 0.7, 0.3, 0.9]), bannedCorrectIds });
+  assert.equal(decision.issues.length, 2);
+  assert.deepEqual(decision.options.map((option) => option.code), ['KeyQ', 'KeyW']);
+  assert.ok(decision.issues.every((issue) => !bannedCorrectIds.includes(issue.id)));
+});
+
 test('priority phase rotates all three priorities', () => {
   assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');

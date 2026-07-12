@@ -172,11 +172,11 @@ export function createDecision(goalId = 'balance', options = {}) {
   const bannedCorrectIds = new Set(options.bannedCorrectIds || []);
   const goal = GOALS[goalId] || GOALS.balance;
   const eligibleIds = Object.keys(ISSUES).filter((id) => !bannedCorrectIds.has(id));
-  const ids = shuffle(eligibleIds, random).slice(0, 3);
+  const ids = shuffle(eligibleIds, random).slice(0, Math.min(3, eligibleIds.length));
   const ranked = ids.slice().sort((a, b) => goal.priority.indexOf(a) - goal.priority.indexOf(b));
   const correctId = ranked.find((id) => !bannedCorrectIds.has(id)) || ranked[0];
-  const keyCodes = ['KeyQ', 'KeyW', 'KeyE'];
-  const positionLabels = ['왼쪽', '가운데', '오른쪽'];
+  const keyCodes = ['KeyQ', 'KeyW', 'KeyE'].slice(0, ids.length);
+  const positionLabels = ids.length === 2 ? ['왼쪽', '오른쪽'] : ['왼쪽', '가운데', '오른쪽'];
   const requestedIndex = keyCodes.indexOf(options.correctCode);
   const correctIndex = requestedIndex >= 0 ? requestedIndex : Math.floor(random() * keyCodes.length);
   const otherIds = shuffle(ids.filter((id) => id !== correctId), random);

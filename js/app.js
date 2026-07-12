@@ -493,14 +493,14 @@ function renderPriorityBanSetup() {
   const selected = [...selectedPriorityBans];
   elements.priorityBanStatus.textContent = selected.length
     ? `${selected.length}개 제외 · ${selected.map((id) => PRIORITY_GUIDE.find((item) => item.id === id).rank).join(', ')}번`
-    : '선택 안 함 · 최대 2개';
+    : '선택 안 함 · 최대 4개';
 }
 
 function togglePriorityBan(id) {
   if (selectedPriorityBans.has(id)) selectedPriorityBans.delete(id);
-  else if (selectedPriorityBans.size < 2) selectedPriorityBans.add(id);
+  else if (selectedPriorityBans.size < 4) selectedPriorityBans.add(id);
   else {
-    elements.priorityBanStatus.textContent = '최대 2개까지만 제외할 수 있습니다.';
+    elements.priorityBanStatus.textContent = '최대 4개까지만 제외할 수 있습니다.';
     return;
   }
   renderPriorityBanSetup();
@@ -517,6 +517,7 @@ function openChallengeSetup() {
 
 function renderSituation(decision) {
   elements.decisionRule.textContent = `지금 가장 늦으면 손해가 큰 일을 고르세요. ${decision.rule}`;
+  elements.situationVisual.dataset.count = String(decision.issues.length);
   elements.situationVisual.innerHTML = decision.issues.map((issue) => `
     <article class="situation-signal situation-signal--${issue.id}" aria-label="${issue.visual.description}">
       <div class="situation-art" aria-hidden="true">${situationGraphic(issue.id)}</div>
@@ -745,7 +746,7 @@ function hidePauseReview() {
 }
 
 function resetDecisionKeyCycle() {
-  const keys = ['KeyQ', 'KeyW', 'KeyE'];
+  const keys = ['KeyQ', 'KeyW', 'KeyE'].slice(0, session.bannedPriorityIds.length >= 4 ? 2 : 3);
   for (let index = keys.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
     [keys[index], keys[swapIndex]] = [keys[swapIndex], keys[index]];
@@ -813,7 +814,7 @@ function showDecision() {
 function answerDecision(code) {
   const decision = session.currentDecision;
   if (!decision || !decision.ready || decision.answered || !hasDecision()) return false;
-  if (!['KeyQ', 'KeyW', 'KeyE'].includes(code)) return false;
+  if (!decision.options.some((option) => option.code === code)) return false;
   decision.answered = true;
   const stats = session.stats[activePhase().id];
   const responseMs = performance.now() - decision.shownAt;

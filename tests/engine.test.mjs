@@ -4,6 +4,7 @@ import {
   PHASES,
   adjustMotorInterval,
   blankStats,
+  createMotorCommand,
   computeSessionSummary,
   median,
   summarizePhase
@@ -38,6 +39,13 @@ test('adaptive tempo changes only when both channels justify it', () => {
   assert.equal(adjustMotorInterval(1000, 0.94, 0.88), 930);
   assert.equal(adjustMotorInterval(1000, 0.95, 0.6), 1100);
   assert.equal(adjustMotorInterval(1000, 0.85, 0.75), 1000);
+});
+
+test('motor command requires a group key and an action key before a click', () => {
+  const first = createMotorCommand(0, 'motor', () => 0);
+  const transfer = createMotorCommand(0, 'transfer', () => 0.99);
+  assert.deepEqual(first, { groupCode: 'Digit1', actionCode: 'KeyA', actionSymbol: '▲', actionLabel: '전진' });
+  assert.deepEqual(transfer, { groupCode: 'Digit4', actionCode: 'KeyD', actionSymbol: '○', actionLabel: '탐색' });
 });
 
 test('session summary separates motor and thinking retention', () => {

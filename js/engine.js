@@ -19,6 +19,24 @@ export const MOTOR_ORDERS = {
   transfer: ['Digit4', 'Digit2', 'Digit1', 'Digit3']
 };
 
+export const MOTOR_COMMANDS = [
+  { id: 'advance', code: 'KeyA', symbol: '▲', label: '전진' },
+  { id: 'hold', code: 'KeyS', symbol: '■', label: '고정' },
+  { id: 'scan', code: 'KeyD', symbol: '○', label: '탐색' }
+];
+
+export function createMotorCommand(index, phaseId, random = Math.random) {
+  const order = phaseId === 'transfer' ? MOTOR_ORDERS.transfer : MOTOR_ORDERS.practice;
+  const actionIndex = Math.min(MOTOR_COMMANDS.length - 1, Math.floor(random() * MOTOR_COMMANDS.length));
+  const action = MOTOR_COMMANDS[actionIndex];
+  return {
+    groupCode: order[index % order.length],
+    actionCode: action.code,
+    actionSymbol: action.symbol,
+    actionLabel: action.label
+  };
+}
+
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }

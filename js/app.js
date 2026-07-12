@@ -1,9 +1,9 @@
 import {
   PHASES,
   DEMO_PHASES,
-  MOTOR_ORDERS,
   adjustMotorInterval,
   blankStats,
+  createMotorCommand,
   computeSessionSummary,
   formatPercent,
   keyLabel,
@@ -12,9 +12,8 @@ import {
 import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
-const BASE_TITLE = '스타크래프트 입력·판단 훈련';
-const DECISION_READING_MS = 3000;
-const DECISION_ANSWER_MS = 4200;
+const BASE_TITLE = '이중과제 입력·판단 훈련';
+const DECISION_ANSWER_MS = 3000;
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   pageViews: [...document.querySelectorAll('.page-view[data-page]')],
@@ -46,7 +45,7 @@ const elements = {
   decisionCard: $('#decision-card'),
   decisionStatus: $('#decision-status'),
   decisionRule: $('#decision-rule'),
-  issueList: $('#issue-list'),
+  situationVisual: $('#situation-visual'),
   decisionOptions: $('#decision-options'),
   decisionFeedback: $('#decision-feedback'),
   coachLine: $('#coach-line'),
@@ -61,8 +60,7 @@ const elements = {
   resultTransfer: $('#result-transfer'),
   resultDetail: $('#result-detail'),
   practiceStatus: $('#practice-status'),
-  fatigueSelect: $('#fatigue-select'),
-  gameSelect: $('#game-select')
+  fatigueSelect: $('#fatigue-select')
 };
 
 const session = {
@@ -78,7 +76,7 @@ const session = {
   phaseElapsed: 0,
   lastTick: 0,
   stats: {},
-  motorInterval: 1150,
+  motorInterval: 1350,
   motorTimer: 0,
   decisionTimer: 0,
   currentTarget: null,
@@ -115,7 +113,6 @@ function saveRecord(summary) {
   const store = loadStore();
   store.records.push({
     date: new Date().toISOString(),
-    game: elements.gameSelect.value,
     fatigue: elements.fatigueSelect.value,
     motorRetention: summary.motorRetention,
     thinkingRetention: summary.thinkingRetention,
@@ -197,11 +194,11 @@ function setupPhase() {
   elements.phaseName.textContent = phase.name;
   elements.phaseTime.textContent = formatClock(session.phaseRemaining);
   elements.priorityChip.textContent = phase.id === 'priority' ? '입력 우선' : (phase.id === 'switch' ? GOALS.survive.label : '동일 비중');
-  elements.motorOrder.textContent = phase.id === 'transfer' ? '4 → 2 → 1 → 3' : '1 → 2 → 3 → 4';
+  elements.motorOrder.textContent = hasMotor(phase) ? '명령 대기' : '입력 없음';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
-    ? '<strong>앱은 정확하게 완료한 입력만 점수로 계산합니다</strong><span>사용자는 화면에 표시된 숫자 키를 누른 뒤 표적을 클릭해야 합니다.</span>'
-    : '<strong>앱이 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 숫자 키를 누르지 않고 판단 문제만 풀어야 합니다.</span>';
+    ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 숫자 키, 명령 키, 표적 클릭을 순서대로 수행해야 합니다.</span>'
+    : '<strong>앱이 시각 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 입력하지 않고 상황 그림만 보고 행동을 골라야 합니다.</span>';
   elements.decisionCard.hidden = true;
   elements.motorTarget.hidden = true;
   elements.decisionFeedback.textContent = '';
@@ -234,13 +231,13 @@ function updateCoach() {
   const phase = activePhase();
   const lines = {
     prepare: '앱은 곧 입력 과제와 판단 과제를 따로 측정합니다. 사용자는 정확도를 유지할 수 있는 속도로 입력해야 합니다.',
-    motor: '사용자가 숫자 키를 누른 뒤 표적을 클릭하면 앱이 완료 동작 한 개를 기록합니다.',
-    decision: '사용자는 화면에 표시된 우선순위 규칙에 따라 가장 먼저 처리할 행동을 골라야 합니다.',
-    dual: '사용자는 입력 순서를 계속 수행하면서 판단 문제도 풀어야 합니다.',
+    motor: '사용자는 숫자 키와 명령 키를 누른 뒤 움직인 표적을 클릭해야 합니다.',
+    decision: '사용자는 문장을 읽지 않고 상황 그림을 보고 가장 먼저 처리할 행동을 골라야 합니다.',
+    dual: '사용자는 세 단계 입력을 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
     priority: '앱이 한 과제를 우선 과제로 표시해도 사용자는 다른 과제를 계속 수행해야 합니다.',
     switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
-    inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키를 누르거나 표적을 클릭하면 안 됩니다.',
-    transfer: '앱이 입력 순서를 4→2→1→3으로 바꿉니다. 앱은 이 구간에서 정답을 바로 알려 주지 않습니다.'
+    inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키, 명령 키, 클릭을 모두 멈춰야 합니다.',
+    transfer: '앱이 숫자 키 순서와 명령 기호를 바꿉니다. 앱은 이 구간에서 정답을 바로 알려 주지 않습니다.'
   };
   elements.coachLine.textContent = lines[phase.id];
 }
@@ -268,19 +265,28 @@ function spawnMotorTarget() {
   const phase = activePhase();
   if (!phase || !hasMotor(phase)) return;
   const stats = session.stats[phase.id];
-  const order = phase.id === 'transfer' ? MOTOR_ORDERS.transfer : MOTOR_ORDERS.practice;
-  const code = order[session.motorIndex % order.length];
+  const command = createMotorCommand(session.motorIndex, phase.id);
   session.motorIndex += 1;
   const stop = phase.id === 'inhibit' && Math.random() < 0.24;
-  session.currentTarget = { code, keyed: false, stop, violated: false, resolved: false, spawnAt: performance.now() };
+  session.currentTarget = {
+    ...command,
+    grouped: false,
+    commanded: false,
+    stop,
+    violated: false,
+    resolved: false,
+    spawnAt: performance.now()
+  };
   if (stop) stats.stopTrials += 1;
   else stats.motorAttempts += 1;
   elements.motorTarget.hidden = false;
   elements.motorTarget.classList.toggle('stop', stop);
-  elements.motorTarget.classList.remove('keyed');
-  elements.targetKey.textContent = stop ? 'STOP' : keyLabel(code);
-  const x = 15 + Math.random() * 70;
-  const y = 17 + Math.random() * 66;
+  elements.motorTarget.classList.remove('keyed', 'commanded');
+  elements.targetKey.textContent = stop ? 'STOP' : command.actionSymbol;
+  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 다음 ${keyLabel(command.actionCode)}를 누르고 클릭할 표적`);
+  elements.motorOrder.textContent = stop ? 'STOP · 입력하지 마세요' : `${keyLabel(command.groupCode)} → ${keyLabel(command.actionCode)} → ${command.actionSymbol}`;
+  const x = 11 + Math.random() * 78;
+  const y = 14 + Math.random() * 72;
   elements.motorTarget.style.left = `${x}%`;
   elements.motorTarget.style.top = `${y}%`;
 }
@@ -290,13 +296,15 @@ function expireTarget() {
   if (!target) return;
   if (target.stop && !target.violated) session.stats[activePhase().id].stopSuccesses += 1;
   elements.motorTarget.hidden = true;
-  elements.motorTarget.classList.remove('keyed', 'stop');
+  elements.motorTarget.classList.remove('keyed', 'commanded', 'stop');
   session.currentTarget = null;
 }
 
 function handleMotorKey(code) {
   if (!session.running || session.paused || !hasMotor()) return false;
-  if (!code.startsWith('Digit')) return false;
+  const isGroupKey = code.startsWith('Digit');
+  const isCommandKey = ['KeyA', 'KeyS', 'KeyD'].includes(code);
+  if (!isGroupKey && !isCommandKey) return false;
   const stats = session.stats[activePhase().id];
   const target = session.currentTarget;
   if (!target || target.resolved) {
@@ -311,9 +319,12 @@ function handleMotorKey(code) {
     updateLiveMetrics();
     return true;
   }
-  if (code === target.code && !target.keyed) {
-    target.keyed = true;
+  if (isGroupKey && code === target.groupCode && !target.grouped) {
+    target.grouped = true;
     elements.motorTarget.classList.add('keyed');
+  } else if (isCommandKey && target.grouped && code === target.actionCode && !target.commanded) {
+    target.commanded = true;
+    elements.motorTarget.classList.add('commanded');
   } else {
     stats.noiseInputs += 1;
   }
@@ -329,7 +340,7 @@ function handleTargetClick() {
   if (target.stop) {
     target.violated = true;
     stats.noiseInputs += 1;
-  } else if (target.keyed && !target.resolved) {
+  } else if (target.commanded && !target.resolved) {
     target.resolved = true;
     stats.validActions += 1;
     elements.motorTarget.hidden = true;
@@ -347,22 +358,42 @@ function scheduleDecision(delay = 900) {
   }, delay);
 }
 
+function situationGraphic(id) {
+  const graphics = {
+    defend: `<svg viewBox="0 0 140 74" aria-hidden="true"><rect class="friendly" x="12" y="43" width="32" height="20" rx="3"/><path class="route danger" d="M121 14C95 20 79 31 50 48"/><path class="arrow danger" d="m53 40-7 9 11 1"/><circle class="danger" cx="116" cy="16" r="7"/><circle class="danger" cx="99" cy="21" r="5"/><circle class="danger" cx="110" cy="31" r="4"/></svg>`,
+    supply: `<svg viewBox="0 0 140 74" aria-hidden="true"><rect class="production" x="16" y="19" width="40" height="32" rx="4"/><path class="friendly" d="M27 35h18"/><rect class="meter warn" x="74" y="18" width="12" height="38" rx="2"/><rect class="meter warn" x="91" y="25" width="12" height="31" rx="2"/><rect class="meter warn" x="108" y="32" width="12" height="24" rx="2"/><path class="route warn" d="M63 40h54"/></svg>`,
+    produce: `<svg viewBox="0 0 140 74" aria-hidden="true"><circle class="resource" cx="26" cy="39" r="15"/><path class="accent" d="M19 39h14M26 32v14"/><rect class="production" x="62" y="20" width="21" height="37" rx="3"/><rect class="production quiet" x="92" y="20" width="21" height="37" rx="3"/><path class="danger" d="M97 28l12 20M109 28 97 48"/></svg>`,
+    scout: `<svg viewBox="0 0 140 74" aria-hidden="true"><circle class="fog" cx="35" cy="37" r="22"/><path class="route" d="M63 37h44"/><circle class="quiet" cx="113" cy="37" r="16"/><path class="danger" d="M103 37h20M113 27v20"/></svg>`,
+    expand: `<svg viewBox="0 0 140 74" aria-hidden="true"><rect class="friendly" x="14" y="32" width="30" height="20" rx="3"/><path class="route" d="M48 42c26-23 39-23 60-5"/><circle class="resource" cx="116" cy="38" r="16"/><path class="accent" d="M109 38h14M116 31v14"/></svg>`,
+    pressure: `<svg viewBox="0 0 140 74" aria-hidden="true"><circle class="friendly" cx="25" cy="23" r="6"/><circle class="friendly" cx="37" cy="35" r="7"/><circle class="friendly" cx="23" cy="46" r="5"/><path class="route friendly" d="M50 38h38"/><path class="arrow friendly" d="m82 31 10 7-10 7"/><rect class="danger" x="102" y="26" width="22" height="24" rx="3"/></svg>`
+  };
+  return graphics[id] || '';
+}
+
+function renderSituation(decision) {
+  elements.decisionRule.textContent = `${decision.goalLabel} · 그림에서 먼저 처리할 신호를 고르세요.`;
+  elements.situationVisual.innerHTML = decision.issues.map((issue) => `
+    <article class="situation-signal situation-signal--${issue.id}" aria-label="${issue.visual.description}">
+      <div class="situation-art" aria-hidden="true">${situationGraphic(issue.id)}</div>
+      <div class="situation-caption"><strong>${issue.visual.metric}</strong><span>${issue.visual.label}</span></div>
+    </article>`).join('');
+}
+
 function showDecision() {
   if (session.currentDecision) closeDecision(false);
   const phase = activePhase();
   const goalId = goalForPhase(phase.id, session.phaseElapsed);
   session.currentDecision = {
     ...createDecision(goalId, { transfer: phase.id === 'transfer' }),
-    shownAt: 0,
-    ready: false,
+    shownAt: performance.now(),
+    ready: true,
     answered: false
   };
   const decision = session.currentDecision;
   elements.priorityChip.textContent = phase.id === 'priority' ? session.priority : decision.goalLabel;
-  elements.decisionRule.textContent = decision.rule;
-  elements.issueList.innerHTML = decision.issues.map((issue) => `<li>${issue.text}</li>`).join('');
+  renderSituation(decision);
   elements.decisionOptions.innerHTML = decision.options.map((option) => `
-    <button class="decision-option" type="button" data-code="${option.code}" disabled>
+    <button class="decision-option" type="button" data-code="${option.code}">
       <kbd>${keyLabel(option.code)}</kbd><span>${option.label}</span>
     </button>`).join('');
   elements.decisionOptions.querySelectorAll('button').forEach((button) => {
@@ -370,21 +401,9 @@ function showDecision() {
   });
   elements.decisionFeedback.textContent = '';
   elements.decisionFeedback.className = 'decision-feedback';
-  elements.decisionStatus.textContent = '읽는 시간 3초';
-  elements.decisionCard.dataset.state = 'reading';
-  elements.decisionCard.hidden = false;
-  window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(beginDecisionAnswer, DECISION_READING_MS);
-}
-
-function beginDecisionAnswer() {
-  const decision = session.currentDecision;
-  if (!decision || !session.running || session.paused || !hasDecision()) return;
-  decision.ready = true;
-  decision.shownAt = performance.now();
-  elements.decisionStatus.textContent = '판단 시작';
+  elements.decisionStatus.textContent = '응답 3초';
   elements.decisionCard.dataset.state = 'answering';
-  elements.decisionOptions.querySelectorAll('button').forEach((button) => { button.disabled = false; });
+  elements.decisionCard.hidden = false;
   window.clearTimeout(session.decisionTimer);
   session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
 }
@@ -569,13 +588,9 @@ function resumeSession() {
   session.lastTick = performance.now();
   if (hasMotor()) scheduleMotor();
   if (hasDecision() && session.currentDecision) {
-    if (session.currentDecision.ready) {
-      session.currentDecision.shownAt = performance.now();
-      session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
-    } else {
-      elements.decisionStatus.textContent = '읽는 시간 3초';
-      session.decisionTimer = window.setTimeout(beginDecisionAnswer, DECISION_READING_MS);
-    }
+    session.currentDecision.shownAt = performance.now();
+    elements.decisionStatus.textContent = '응답 3초';
+    session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
   } else if (hasDecision()) {
     scheduleDecision(700);
   }
@@ -611,7 +626,7 @@ elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
   if (event.repeat || !session.running || session.paused) return;
-  if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
+  if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
   if (answerDecision(event.code)) return;
   handleMotorKey(event.code);
 });

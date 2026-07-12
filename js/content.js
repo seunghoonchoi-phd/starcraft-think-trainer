@@ -26,6 +26,7 @@ export const GOALS = {
 const ISSUES = {
   defend: {
     action: '기지 방어',
+    visual: { label: '접근', metric: '07s', description: '적 표시가 본진으로 빠르게 접근합니다.' },
     lines: [
       '적 병력이 7초 안에 본진에 도착합니다.',
       '미니맵이 두 번째 기지 근처에 적 병력을 표시했습니다.',
@@ -35,6 +36,7 @@ const ISSUES = {
   },
   supply: {
     action: '보급 건물 건설',
+    visual: { label: '한도', metric: '2/3', description: '생산 완료에 비해 보급 한도 여유가 부족합니다.' },
     lines: [
       '현재 보급 한도까지 2칸 남았고, 유닛 생산은 6초 뒤에 끝납니다.',
       '현재 보급 한도까지 1칸 남았고, 생산 건물은 유닛 두 기를 만들고 있습니다.',
@@ -44,6 +46,7 @@ const ISSUES = {
   },
   produce: {
     action: '생산 재개',
+    visual: { label: '유휴', metric: '02', description: '자원이 있지만 생산 건물 두 곳이 비어 있습니다.' },
     lines: [
       '사용자는 자원 620을 보유하고 있지만, 생산 건물 두 곳에 4초 동안 생산 명령을 내리지 않았습니다.',
       '현재 보급 한도에는 여유가 있지만, 사용자는 주력 유닛을 생산하지 않고 있습니다.',
@@ -53,6 +56,7 @@ const ISSUES = {
   },
   scout: {
     action: '적 정보 확인',
+    visual: { label: '미확인', metric: '90s', description: '상대 정보가 오래 업데이트되지 않았습니다.' },
     lines: [
       '사용자가 적 기지를 마지막으로 정찰한 시점은 90초 전입니다. 미니맵은 아군 기지 근처에 적 병력을 표시하지 않습니다.',
       '사용자는 2분 동안 상대가 새 기지를 건설했는지 확인하지 못했습니다.',
@@ -62,6 +66,7 @@ const ISSUES = {
   },
   expand: {
     action: '새 기지 건설',
+    visual: { label: '자원', metric: '900', description: '자원은 많고 다음 자원 지점은 비어 있습니다.' },
     lines: [
       '모든 생산 건물에 생산 명령이 있고, 사용자는 자원 900을 보유하고 있습니다.',
       '적 병력이 없는 새 자원 지점이 있고, 현재 기지에서 얻는 자원이 줄고 있습니다.',
@@ -71,6 +76,7 @@ const ISSUES = {
   },
   pressure: {
     action: '공격 실행',
+    visual: { label: '우세', metric: '4:1', description: '아군 병력이 가까운 공격 경로에서 우세합니다.' },
     lines: [
       '아군 주력 병력이 상대 기지 근처에 모여 있고, 상대 주력 병력은 지도의 반대편에 있습니다.',
       '상대 방어 병력 수가 적고, 아군 주력 병력이 상대 기지 근처에 있습니다.',
@@ -94,7 +100,11 @@ export function createDecision(goalId = 'balance', options = {}) {
   const decisionOptions = optionIds.map((id, index) => ({ code: keyCodes[index], id, label: ISSUES[id].action }));
   const issueLines = ids.map((id) => {
     const source = transfer && ISSUES[id].transfer.length ? ISSUES[id].transfer : ISSUES[id].lines;
-    return { id, text: source[Math.floor(random() * source.length)] };
+    return {
+      id,
+      text: source[Math.floor(random() * source.length)],
+      visual: ISSUES[id].visual
+    };
   });
   sequence += 1;
   return {

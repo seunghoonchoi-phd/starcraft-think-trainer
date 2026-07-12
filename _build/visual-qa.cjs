@@ -57,19 +57,14 @@ const out = 'C:/Users/Public/ogwork/think-hands';
   await page.locator('[data-phase="decision"] .phase-button').click();
   await page.locator('#play-panel').waitFor({ state: 'visible' });
   await page.locator('#decision-card').waitFor({ state: 'visible' });
-  const reading = await page.evaluate(() => ({
+  const visualDecision = await page.evaluate(() => ({
     phase: document.querySelector('#phase-name')?.textContent,
     status: document.querySelector('#decision-status')?.textContent,
-    optionsDisabled: [...document.querySelectorAll('#decision-options button')].every((button) => button.disabled),
+    optionsEnabled: [...document.querySelectorAll('#decision-options button')].every((button) => !button.disabled),
+    situationCount: document.querySelectorAll('.situation-signal').length,
     totalLabel: document.querySelector('#total-time-label')?.textContent
   }));
-  await page.screenshot({ path: path.join(out, 'decision-reading-desktop.png'), fullPage: false });
-
-  await page.getByText('판단 시작', { exact: true }).waitFor({ state: 'visible' });
-  const answering = await page.evaluate(() => ({
-    status: document.querySelector('#decision-status')?.textContent,
-    optionsEnabled: [...document.querySelectorAll('#decision-options button')].every((button) => !button.disabled)
-  }));
+  await page.screenshot({ path: path.join(out, 'decision-visual-desktop.png'), fullPage: false });
   await page.locator('#pause-button').click();
   const pauseVisible = await page.locator('#pause-overlay').isVisible();
   const timeBefore = await page.locator('#total-time').textContent();
@@ -103,12 +98,11 @@ const out = 'C:/Users/Public/ogwork/think-hands';
     && fullStart.phase === '준비'
     && fullStart.totalLabel === '전체 시간'
     && fullStart.totalTime === '10:00'
-    && reading.phase === '판단 기준선'
-    && reading.status === '읽는 시간 3초'
-    && reading.optionsDisabled
-    && reading.totalLabel === '단계 시간'
-    && answering.status === '판단 시작'
-    && answering.optionsEnabled
+    && visualDecision.phase === '판단 기준선'
+    && visualDecision.status === '응답 3초'
+    && visualDecision.optionsEnabled
+    && visualDecision.situationCount === 3
+    && visualDecision.totalLabel === '단계 시간'
     && pauseVisible
     && timeBefore === timeAfter
     && home.startVisible
@@ -117,7 +111,7 @@ const out = 'C:/Users/Public/ogwork/think-hands';
     && home.totalLabel === '전체 시간'
     && home.totalTime === '10:00'
     && errors.length === 0;
-  const report = { baseUrl, initial, fullStart, reading, answering, pauseVisible, timeBefore, timeAfter, home, errors, passed };
+  const report = { baseUrl, initial, fullStart, visualDecision, pauseVisible, timeBefore, timeAfter, home, errors, passed };
   fs.writeFileSync(path.join(out, 'qa-report.json'), JSON.stringify(report, null, 2), 'utf8');
   if (!passed) {
     process.stderr.write(`${JSON.stringify(report, null, 2)}\n`);

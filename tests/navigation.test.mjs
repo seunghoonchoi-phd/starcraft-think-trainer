@@ -41,9 +41,12 @@ test('the trainer exposes immediate start, stage practice, pause, and home contr
   assert.match(html, /일시정지/);
   assert.match(html, /id="home-button"/);
   assert.match(html, /홈으로/);
-  assert.match(html, /id="decision-status">읽는 시간</);
-  assert.match(app, /const DECISION_READING_MS = 3000/);
-  assert.match(app, /function beginDecisionAnswer\(\)/);
+  assert.match(html, /id="decision-status">응답 시간</);
+  assert.match(html, /id="situation-visual"/);
+  assert.match(html, /1부터 4/);
+  assert.match(app, /createMotorCommand/);
+  assert.match(app, /const DECISION_ANSWER_MS = 3000/);
+  assert.doesNotMatch(app, /DECISION_READING_MS|beginDecisionAnswer/);
   assert.match(app, /function returnHome\(message = ''\)/);
   assert.match(app, /startSession\(false, button\.closest\('li'\)\?\.dataset\.phase\)/);
   assert.match(app, /if \(!decision \|\| !decision\.ready \|\| decision\.answered \|\| !hasDecision\(\)\) return false/);

@@ -13,6 +13,7 @@ test('decision always has three unique choices and one answer key', () => {
   assert.equal(new Set(decision.options.map((item) => item.id)).size, 3);
   assert.ok(['KeyQ', 'KeyW', 'KeyE'].includes(decision.correctCode));
   assert.equal(decision.options.filter((item) => item.id === decision.correctId).length, 1);
+  assert.ok(decision.issues.every((issue) => issue.visual && issue.visual.metric && issue.visual.description));
 });
 
 test('switch phase rotates explicit goals', () => {

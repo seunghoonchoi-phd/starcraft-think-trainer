@@ -115,6 +115,7 @@ kbd { font-family: "IBM Plex Mono", monospace; }
 .trainer-section > .section-heading > p { font-size: 14px; line-height: 1.6; }
 
 .trainer-app { display: grid; grid-template-columns: 215px minmax(0,1fr); min-height: 720px; overflow: hidden; scroll-margin-top: 96px; border-radius: 22px; background: var(--ink); color: var(--white); box-shadow: 0 30px 80px rgba(7,17,31,.24); }
+
 body[data-current-page="trainer"] { background: var(--ink); }
 body[data-current-page="trainer"] .trainer-section {
   width: 100%;
@@ -242,11 +243,12 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .base span { transform: skew(5deg); }
 .base::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(83,226,202,.18); }
 .home-base { left: 8%; bottom: 11%; }.production-base { right: 12%; top: 13%; }.scout-base { right: 18%; bottom: 16%; }
-.motor-target { position: absolute; z-index: 5; width: 92px; height: 92px; transform: translate(-50%,-50%); color: var(--ink); border: 0; border-radius: 50%; background: var(--cyan); cursor: crosshair; box-shadow: 0 0 0 8px rgba(83,226,202,.13), 0 0 32px rgba(83,226,202,.28); animation: target-in .16s ease-out; }
+.motor-target { position: absolute; z-index: 5; width: 70px; height: 70px; transform: translate(-50%,-50%); color: var(--ink); border: 0; border-radius: 50%; background: var(--cyan); cursor: crosshair; box-shadow: 0 0 0 7px rgba(83,226,202,.13), 0 0 32px rgba(83,226,202,.28); animation: target-in .16s ease-out; }
 .motor-target::before { content: ""; position: absolute; inset: 7px; border: 2px solid rgba(7,17,31,.25); border-radius: 50%; }
-.motor-target span { position: relative; z-index: 1; display: block; font: 800 28px "IBM Plex Mono", monospace; }
-.motor-target small { position: relative; z-index: 1; display: block; margin-top: 2px; font-size: 8px; font-weight: 800; }
+.motor-target span { position: relative; z-index: 1; display: block; font: 800 23px "IBM Plex Mono", monospace; }
+.motor-target small { position: relative; z-index: 1; display: block; margin-top: 2px; font-size: 7px; font-weight: 800; }
 .motor-target.keyed { background: var(--yellow); box-shadow: 0 0 0 8px rgba(246,199,93,.14), 0 0 32px rgba(246,199,93,.24); }
+.motor-target.commanded { background: var(--blue); box-shadow: 0 0 0 8px rgba(97,168,255,.14), 0 0 32px rgba(97,168,255,.28); }
 .motor-target.stop { background: var(--red); color: white; box-shadow: 0 0 0 8px rgba(255,93,104,.15), 0 0 35px rgba(255,93,104,.32); }
 .motor-target.stop span { font-size: 15px; }
 @keyframes target-in { from { transform: translate(-50%,-50%) scale(.55); opacity: 0; } }
@@ -259,12 +261,27 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .decision-head strong { color: var(--cyan); font: inherit; }
 @keyframes blink { 50% { opacity: .3; } }
 .decision-card > p { color: #9dadbc; font-size: 11px; line-height: 1.55; }
-.decision-card ul { list-style: none; padding: 0; margin: 4px 0 12px; display: grid; gap: 7px; }
-.decision-card li { padding: 9px 10px; border-left: 2px solid #486079; background: rgba(255,255,255,.035); color: #d4dbe2; font-size: 10px; line-height: 1.45; }
+.situation-visual { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin: 4px 0 12px; }
+.situation-signal { min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.11); border-radius: 8px; background: #0d1a29; }
+.situation-art { height: 70px; display: grid; place-items: center; padding: 6px; background-color: #0a1725; background-image: linear-gradient(rgba(83,226,202,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(83,226,202,.06) 1px, transparent 1px); background-size: 14px 14px; }
+.situation-art svg { width: 100%; height: 100%; overflow: visible; }
+.situation-art .friendly { fill: var(--cyan); stroke: var(--cyan); }
+.situation-art .danger { fill: var(--orange); stroke: var(--orange); }
+.situation-art .warn { fill: var(--yellow); stroke: var(--yellow); }
+.situation-art .resource { fill: var(--blue); stroke: var(--blue); }
+.situation-art .production { fill: #26445f; stroke: #6c88a1; stroke-width: 2; }
+.situation-art .quiet { opacity: .38; }
+.situation-art .fog { fill: rgba(128,145,161,.18); stroke: #7f93a5; stroke-width: 2; stroke-dasharray: 4 3; }
+.situation-art .accent { fill: none; stroke: var(--cyan); stroke-width: 3; stroke-linecap: round; }
+.situation-art .route { fill: none; stroke: #668aa6; stroke-width: 2; stroke-dasharray: 4 3; }
+.situation-art .route.danger, .situation-art .route.warn, .situation-art .route.friendly { stroke-width: 3; }
+.situation-art .arrow { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.situation-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; padding: 7px 8px; }
+.situation-caption strong { color: var(--white); font: 700 12px "IBM Plex Mono", monospace; }
+.situation-caption span { min-width: 0; overflow: hidden; color: #97a8b7; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .decision-options { display: grid; gap: 7px; margin-top: auto; }
 .decision-option { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 9px; padding: 9px; text-align: left; color: var(--white); border: 1px solid rgba(255,255,255,.11); border-radius: 7px; background: #182b3e; cursor: pointer; }
 .decision-option:hover, .decision-option:focus-visible { border-color: var(--cyan); background: #1b354a; }
-.decision-card[data-state="reading"] .decision-options { opacity: .48; }
 .decision-option:disabled { cursor: not-allowed; }
 .decision-option kbd { display: grid; place-items: center; width: 28px; height: 26px; border-radius: 5px; background: #07111f; color: var(--cyan); font-size: 11px; }
 .decision-option span { font-size: 11px; font-weight: 700; }

@@ -750,13 +750,15 @@ function answerDecision(code) {
   stats.decisionAttempts += 1;
   stats.decisionTimes.push(responseMs);
   if (correct) stats.correctDecisions += 1;
-  if (!['transfer', 'challenge'].includes(activePhase().id)) {
-    elements.decisionFeedback.textContent = correct ? `사용자가 고른 답이 맞습니다. ${decision.reason}` : `이 문제의 정답은 ${decision.correctLabel}입니다.`;
+  if (activePhase().id !== 'transfer') {
+    elements.decisionFeedback.textContent = correct
+      ? `정답입니다. ${decision.reason}`
+      : `오답입니다. 정답은 ${decision.correctLabel}입니다. ${decision.reason}`;
     elements.decisionFeedback.classList.toggle('wrong', !correct);
   }
   updateLiveMetrics();
   window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(() => closeDecision(true), ['transfer', 'challenge'].includes(activePhase().id) ? 180 : 520);
+  session.decisionTimer = window.setTimeout(() => closeDecision(true), activePhase().id === 'challenge' ? 1100 : (activePhase().id === 'transfer' ? 180 : 520));
   return true;
 }
 
@@ -765,9 +767,14 @@ function closeDecision(answered) {
   if (!decision) return;
   if (!answered && decision.ready && !decision.answered) {
     session.stats[activePhase().id].decisionAttempts += 1;
-    if (!['transfer', 'challenge'].includes(activePhase().id)) {
+    if (activePhase().id !== 'transfer') {
       elements.decisionFeedback.textContent = '사용자가 제한 시간 안에 행동을 고르지 못했습니다.';
       elements.decisionFeedback.classList.add('wrong');
+      if (activePhase().id === 'challenge') {
+        decision.answered = true;
+        session.decisionTimer = window.setTimeout(() => closeDecision(true), 1100);
+        return;
+      }
     }
   }
   session.currentDecision = null;

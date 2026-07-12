@@ -15,25 +15,27 @@ export const DEMO_PHASES = PHASES.map((phase) => ({
 }));
 
 export const MOTOR_ORDERS = {
-  practice: ['KeyA', 'KeyS', 'KeyD', 'KeyF'],
-  transfer: ['KeyF', 'KeyD', 'KeyA', 'KeyS']
+  practice: ['Digit1', 'Digit2', 'Digit3'],
+  transfer: ['Digit3', 'Digit1', 'Digit2']
 };
 
-export const MOTOR_COMMANDS = {
-  KeyA: { id: 'advance', code: 'KeyS', symbol: '▲', label: '전진' },
-  KeyS: { id: 'hold', code: 'KeyD', symbol: '■', label: '고정' },
-  KeyD: { id: 'scan', code: 'KeyF', symbol: '○', label: '탐색' },
-  KeyF: { id: 'shift', code: 'KeyG', symbol: '◆', label: '이동' }
-};
+export const MOTOR_COMMANDS = [
+  { id: 'r', code: 'KeyR', label: 'R' },
+  { id: 't', code: 'KeyT', label: 'T' },
+  { id: 'y', code: 'KeyY', label: 'Y' },
+  { id: 'f', code: 'KeyF', label: 'F' },
+  { id: 'g', code: 'KeyG', label: 'G' },
+  { id: 'h', code: 'KeyH', label: 'H' }
+];
 
-export function createMotorCommand(index, phaseId) {
+export function createMotorCommand(index, phaseId, random = Math.random) {
   const order = phaseId === 'transfer' ? MOTOR_ORDERS.transfer : MOTOR_ORDERS.practice;
   const groupCode = order[index % order.length];
-  const action = MOTOR_COMMANDS[groupCode];
+  const action = MOTOR_COMMANDS[Math.min(MOTOR_COMMANDS.length - 1, Math.floor(random() * MOTOR_COMMANDS.length))];
   return {
     groupCode,
     actionCode: action.code,
-    actionSymbol: action.symbol,
+    actionSymbol: action.label,
     actionLabel: action.label
   };
 }
@@ -111,7 +113,7 @@ export function computeSessionSummary(rawByPhase) {
 
 export function classifyProfile({ motor, decision, combined, motorRetention, thinkingRetention }) {
   if (motor.motorAccuracy < 0.78 || motor.actionRate < 12) {
-    return { id: 'motor', title: '사용자는 왼손 입력과 클릭 순서를 먼저 연습해야 합니다', advice: '사용자의 입력 정확도가 기준보다 낮았습니다. 사용자는 다음 세션에서 속도를 올리지 말고 표적에 표시된 A, S, D, F, G 키를 같은 줄에서 차례로 누른 뒤 표적을 클릭해야 합니다. 사용자는 입력 정확도 90%를 목표로 연습해야 합니다.' };
+    return { id: 'motor', title: '사용자는 숫자 키와 클릭 순서를 먼저 연습해야 합니다', advice: '사용자의 입력 정확도가 기준보다 낮았습니다. 사용자는 다음 세션에서 속도를 올리지 말고 표적에 표시된 숫자 키와 R, T, Y, F, G, H 중 한 키를 누른 뒤 표적을 클릭해야 합니다. 사용자는 입력 정확도 90%를 목표로 연습해야 합니다.' };
   }
   if (decision.decisionAccuracy < 0.7) {
     return { id: 'decision', title: '사용자는 우선순위 규칙을 먼저 익혀야 합니다', advice: '사용자가 입력 과제를 하지 않은 구간에서도 판단 정확도가 기준보다 낮았습니다. 사용자는 피로 상태와 화면에 표시된 우선순위 규칙을 확인한 뒤 판단 과제를 다시 수행해야 합니다.' };

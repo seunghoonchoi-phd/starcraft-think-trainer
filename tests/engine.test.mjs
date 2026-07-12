@@ -42,10 +42,10 @@ test('adaptive tempo changes only when both channels justify it', () => {
 });
 
 test('motor command requires a group key and an action key before a click', () => {
-  const first = createMotorCommand(0, 'motor');
-  const transfer = createMotorCommand(0, 'transfer');
-  assert.deepEqual(first, { groupCode: 'KeyA', actionCode: 'KeyS', actionSymbol: '▲', actionLabel: '전진' });
-  assert.deepEqual(transfer, { groupCode: 'KeyF', actionCode: 'KeyG', actionSymbol: '◆', actionLabel: '이동' });
+  const first = createMotorCommand(0, 'motor', () => 0);
+  const transfer = createMotorCommand(0, 'transfer', () => 0.99);
+  assert.deepEqual(first, { groupCode: 'Digit1', actionCode: 'KeyR', actionSymbol: 'R', actionLabel: 'R' });
+  assert.deepEqual(transfer, { groupCode: 'Digit3', actionCode: 'KeyH', actionSymbol: 'H', actionLabel: 'H' });
 });
 
 test('session summary separates motor and thinking retention', () => {

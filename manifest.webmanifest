@@ -1,0 +1,19 @@
+{
+  "name": "스타크래프트 생각·손 훈련소",
+  "short_name": "생각·손 훈련",
+  "description": "손이 바빠져도 판단을 놓치지 않도록 연습하는 스타크래프트형 이중과제 훈련 도구",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

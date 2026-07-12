@@ -23,6 +23,12 @@ test('switch phase rotates explicit goals', () => {
   assert.equal(goalForPhase('dual', 50), 'balance');
 });
 
+test('challenge phase rotates the judgment rule every ten seconds', () => {
+  assert.equal(goalForPhase('challenge', 0), 'survive');
+  assert.equal(goalForPhase('challenge', 10), 'grow');
+  assert.equal(goalForPhase('challenge', 20), 'attack');
+});
+
 test('decision keys follow the left-to-right situation order', () => {
   const decision = createDecision('balance', { random: () => 0.25 });
   assert.deepEqual(decision.options.map((item) => item.code), ['KeyQ', 'KeyW', 'KeyE']);

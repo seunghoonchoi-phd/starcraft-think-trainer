@@ -32,6 +32,7 @@
             <li data-phase="switch"><button class="phase-button" type="button"><b>06</b><span>판단 규칙 변경<small>시각 상황의 우선순위 규칙 변경</small></span></button></li>
             <li data-phase="inhibit"><button class="phase-button" type="button"><b>07</b><span>입력 억제<small>STOP 표적에서 입력하지 않기</small></span></button></li>
             <li data-phase="transfer"><button class="phase-button" type="button"><b>08</b><span>변경 조건 검사<small>정답을 알려 주지 않고 측정</small></span></button></li>
+            <li data-phase="challenge"><button class="phase-button challenge-phase" type="button"><b>09</b><span>최고 난도 복합<small>무제한 · 규칙 변경 · STOP</small></span></button></li>
           </ol>
         </aside>
 
@@ -81,7 +82,7 @@
               <div><span id="phase-number">01</span><strong id="phase-name">준비</strong></div>
               <div id="priority-chip" class="priority-chip">동일 비중</div>
               <div class="topbar-actions">
-                <div class="phase-clock"><span>남은 시간</span><strong id="phase-time">00:20</strong></div>
+                <div class="phase-clock"><span id="phase-clock-label">남은 시간</span><strong id="phase-time">00:20</strong></div>
                 <button id="pause-button" class="pause-button" type="button">일시중지</button>
                 <button id="home-button" class="home-button" type="button">홈으로</button>
               </div>
@@ -119,6 +120,13 @@
                 <div id="situation-visual" class="situation-visual" aria-live="polite"></div>
                 <div id="decision-options" class="decision-options"></div>
                 <p id="decision-feedback" class="decision-feedback" aria-live="polite"></p>
+                <section id="pause-review" class="pause-review" hidden aria-label="일시중지 우선순위 복습">
+                  <span>일시중지 중</span>
+                  <h4>기본 우선순위 다시 보기</h4>
+                  <ol id="pause-review-list"></ol>
+                  <p>순서가 기억나면 훈련을 계속하세요.</p>
+                  <button id="pause-review-resume" class="primary-button" type="button">훈련 계속하기</button>
+                </section>
               </aside>
             </div>
 

@@ -6,7 +6,8 @@ export const PHASES = [
   { id: 'priority', name: '우선 과제 변경', seconds: 120, mode: 'dual' },
   { id: 'switch', name: '판단 규칙 변경', seconds: 70, mode: 'dual' },
   { id: 'inhibit', name: '입력 억제', seconds: 60, mode: 'dual' },
-  { id: 'transfer', name: '변경 조건 검사', seconds: 110, mode: 'dual' }
+  { id: 'transfer', name: '변경 조건 검사', seconds: 110, mode: 'dual' },
+  { id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, practiceOnly: true }
 ];
 
 export const DEMO_PHASES = PHASES.map((phase) => ({

@@ -12,6 +12,9 @@ import {
 
 test('real session is exactly 600 seconds', () => {
   assert.equal(PHASES.reduce((sum, phase) => sum + phase.seconds, 0), 600);
+  assert.deepEqual(PHASES.find((phase) => phase.id === 'challenge'), {
+    id: 'challenge', name: '최고 난도 복합', seconds: 0, mode: 'dual', unlimited: true, practiceOnly: true
+  });
 });
 
 test('median handles odd, even, and empty samples', () => {

@@ -28,6 +28,7 @@ const elements = {
   exportButton: $('#export-button'),
   totalTimeLabel: $('#total-time-label'),
   totalTime: $('#total-time'),
+  phaseClockLabel: $('#phase-clock-label'),
   phaseTime: $('#phase-time'),
   phaseNumber: $('#phase-number'),
   phaseName: $('#phase-name'),
@@ -55,6 +56,9 @@ const elements = {
   homeButton: $('#home-button'),
   pauseOverlay: $('#pause-overlay'),
   resumeButton: $('#resume-button'),
+  pauseReview: $('#pause-review'),
+  pauseReviewList: $('#pause-review-list'),
+  pauseReviewResume: $('#pause-review-resume'),
   resultTitle: $('#result-title'),
   resultSummary: $('#result-summary'),
   resultMotor: $('#result-motor'),
@@ -108,13 +112,13 @@ const PHASE_TUTORIALS = {
     steps: ['화면 아래의 현재 순서를 먼저 읽습니다.', '새 행동이 나오면 앱이 시간을 멈춘 튜토리얼을 먼저 표시합니다.']
   },
   motor: {
-    title: '입력 기준선: 세 단계를 순서대로 수행합니다',
+    title: '입력 기준선: 두 단계를 순서대로 수행합니다',
     prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
     steps: ['표적 안에 무작위로 표시된 1, 2, 3, 4 중 한 숫자 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
   },
   dual: {
     title: '동시 수행: 입력과 판단을 함께 수행합니다',
-    prompt: '왼쪽 표적의 세 단계 입력을 계속하면서 오른쪽 상황 카드의 답도 고르세요.',
+    prompt: '왼쪽 표적의 두 단계 입력을 계속하면서 오른쪽 상황 카드의 답도 고르세요.',
     steps: ['입력 순서는 아래 문장을 따릅니다.', '상황 카드는 가장 늦으면 손해가 큰 일을 묻습니다.', '두 과제 중 하나가 표시돼도 다른 과제를 멈추지 않습니다.']
   },
   priority: {
@@ -130,12 +134,17 @@ const PHASE_TUTORIALS = {
   inhibit: {
     title: '입력 억제: STOP 표적에서는 아무것도 입력하지 않습니다',
     prompt: '빨간 STOP 표적이 보이면 숫자 키와 클릭을 모두 멈추세요.',
-    steps: ['STOP이 아닌 표적에서는 세 단계 입력을 수행합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
+    steps: ['STOP이 아닌 표적에서는 숫자 키와 클릭을 수행합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
   },
   transfer: {
     title: '변경 조건 검사: 순서와 피드백이 바뀝니다',
     prompt: '앱은 숫자 키 순서를 바꾸고 판단 정답을 바로 알려 주지 않습니다.',
     steps: ['화면 아래의 현재 순서를 매번 확인합니다.', '상황 카드의 답을 고른 뒤에는 정답을 기다리지 않고 다음 행동을 수행합니다.']
+  },
+  challenge: {
+    title: '최고 난도 복합: 멈추지 않고 두 과제를 함께 수행합니다',
+    prompt: '이 모드는 시간 제한이 없습니다. 숫자 표적, 상황 판단, 규칙 변경, STOP 표적이 함께 나옵니다.',
+    steps: ['숫자 키를 누른 뒤 빛나는 표적을 클릭합니다.', '왼쪽 상황은 Q, 가운데는 W, 오른쪽은 E로 고릅니다.', '빨간 STOP 표적에서는 숫자 키와 클릭을 모두 멈춥니다.', '화면 위 규칙이 바뀌면 판단 기준도 바꿉니다.', '순서가 기억나지 않으면 일시중지를 누르고 오른쪽 우선순위표를 다시 봅니다.']
   }
 };
 
@@ -145,7 +154,7 @@ function showTrainer(focusTrainer = true) {
     view.hidden = false;
     view.classList.add('is-active');
   });
-  elements.pauseOverlay.hidden = !session.paused;
+  elements.pauseOverlay.hidden = !session.paused || isUnlimited();
   document.body.dataset.currentPage = 'trainer';
   document.title = BASE_TITLE;
 
@@ -191,9 +200,14 @@ function hasDecision(phase = activePhase()) {
   return phase && (phase.mode === 'decision' || phase.mode === 'dual');
 }
 
+function isUnlimited(phase = activePhase()) {
+  return Boolean(phase?.unlimited);
+}
+
 function phasesForSession(demo, qaMode) {
-  if (qaMode) return PHASES.map((phase) => ({ ...phase, seconds: 1.5 }));
-  return demo ? DEMO_PHASES : PHASES;
+  const timedPhases = PHASES.filter((phase) => !phase.practiceOnly);
+  if (qaMode) return timedPhases.map((phase) => ({ ...phase, seconds: 1.5 }));
+  return demo ? DEMO_PHASES.filter((phase) => !phase.practiceOnly) : timedPhases;
 }
 
 function phaseNumber(phase) {
@@ -205,8 +219,9 @@ function startSession(demo = false, practicePhaseId = null) {
     && ['127.0.0.1', 'localhost'].includes(location.hostname)
     && new URLSearchParams(location.search).get('qa') === '1';
   const allPhases = phasesForSession(demo, qaMode);
+  const selectablePhases = demo ? allPhases : PHASES;
   const selectedPhase = practicePhaseId
-    ? allPhases.find((phase) => phase.id === practicePhaseId)
+    ? selectablePhases.find((phase) => phase.id === practicePhaseId)
     : null;
   if (practicePhaseId && !selectedPhase) return;
   session.runId += 1;
@@ -217,7 +232,7 @@ function startSession(demo = false, practicePhaseId = null) {
   session.practice = Boolean(selectedPhase);
   session.phases = selectedPhase ? [selectedPhase] : allPhases;
   session.phaseIndex = 0;
-  session.totalRemaining = session.phases.reduce((sum, phase) => sum + phase.seconds, 0);
+  session.totalRemaining = isUnlimited(session.phases[0]) ? 0 : session.phases.reduce((sum, phase) => sum + phase.seconds, 0);
   session.stats = {};
   session.motorInterval = demo ? 850 : 1150;
   session.summary = null;
@@ -226,7 +241,7 @@ function startSession(demo = false, practicePhaseId = null) {
   elements.resultPanel.hidden = true;
   elements.playPanel.hidden = false;
   elements.app.dataset.state = 'playing';
-  elements.totalTimeLabel.textContent = session.practice ? '단계 시간' : '전체 시간';
+  elements.totalTimeLabel.textContent = isUnlimited(session.phases[0]) ? '무제한 연습' : (session.practice ? '단계 시간' : '전체 시간');
   elements.practiceStatus.hidden = true;
   elements.phaseList.querySelectorAll('li').forEach((item) => item.classList.remove('active', 'done'));
   beginPhase();
@@ -262,14 +277,19 @@ function setupPhase() {
   session.stats[phase.id] = blankStats();
   elements.phaseNumber.textContent = String(phaseNumber(phase)).padStart(2, '0');
   elements.phaseName.textContent = phase.name;
-  elements.phaseTime.textContent = formatClock(session.phaseRemaining);
-  elements.priorityChip.textContent = phase.id === 'priority' ? '입력 우선' : (phase.id === 'switch' ? GOALS.survive.label : '동일 비중');
+  elements.phaseClockLabel.textContent = isUnlimited(phase) ? '경과 시간' : '남은 시간';
+  elements.phaseTime.textContent = isUnlimited(phase) ? '00:00' : formatClock(session.phaseRemaining);
+  elements.totalTime.textContent = isUnlimited(phase) ? '무제한' : formatClock(session.totalRemaining);
+  elements.priorityChip.textContent = phase.id === 'priority'
+    ? '입력 우선'
+    : (['switch', 'challenge'].includes(phase.id) ? GOALS.survive.label : '동일 비중');
   elements.motorOrder.textContent = hasMotor(phase) ? '명령 대기' : '입력 없음';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
     ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 숫자 키와 표적 클릭을 순서대로 수행해야 합니다.</span>'
     : '<strong>앱이 시각 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 입력하지 않고 상황 그림만 보고 행동을 골라야 합니다.</span>';
   elements.decisionCard.hidden = true;
+  elements.pauseReview.hidden = true;
   elements.motorTarget.hidden = true;
   elements.decisionFeedback.textContent = '';
   updatePhaseRail();
@@ -277,6 +297,7 @@ function setupPhase() {
   updateLiveMetrics();
 
   if (hasMotor(phase)) {
+    if (phase.id === 'challenge') session.motorInterval = 720;
     spawnMotorTarget();
     scheduleMotor();
   }
@@ -303,11 +324,12 @@ function updateCoach() {
     prepare: '앱은 곧 입력 과제와 판단 과제를 따로 측정합니다. 사용자는 정확도를 유지할 수 있는 속도로 입력해야 합니다.',
     motor: '사용자는 숫자 키를 누른 뒤 움직인 표적을 클릭해야 합니다.',
     decision: '사용자는 문장을 읽지 않고 상황 그림을 보고 가장 먼저 처리할 행동을 골라야 합니다.',
-    dual: '사용자는 세 단계 입력을 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
+    dual: '사용자는 숫자 키와 표적 클릭을 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
     priority: '앱이 한 과제를 우선 과제로 표시해도 사용자는 다른 과제를 계속 수행해야 합니다.',
     switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
     inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키와 클릭을 모두 멈춰야 합니다.',
-    transfer: '앱이 숫자 키 순서를 바꾸고 정답을 바로 알려 주지 않습니다.'
+    transfer: '앱이 숫자 키 순서를 바꾸고 정답을 바로 알려 주지 않습니다.',
+    challenge: '사용자는 숫자 표적, Q·W·E 판단, 규칙 변경, STOP 억제를 함께 수행해야 합니다. 순서가 기억나지 않으면 일시중지 후 오른쪽 표를 다시 봅니다.'
   };
   elements.coachLine.textContent = lines[phase.id];
 }
@@ -337,7 +359,7 @@ function spawnMotorTarget() {
   const stats = session.stats[phase.id];
   const command = createMotorCommand(session.motorIndex, phase.id);
   session.motorIndex += 1;
-  const stop = phase.id === 'inhibit' && Math.random() < 0.24;
+  const stop = ['inhibit', 'challenge'].includes(phase.id) && Math.random() < (phase.id === 'challenge' ? 0.18 : 0.24);
   session.currentTarget = {
     ...command,
     grouped: false,
@@ -430,6 +452,10 @@ function scheduleDecision(delay = 900) {
     if (!session.running || session.paused || !hasDecision()) return;
     showDecision();
   }, delay);
+}
+
+function decisionAnswerMs(phase = activePhase()) {
+  return phase?.id === 'challenge' ? 2000 : DECISION_ANSWER_MS;
 }
 
 function situationGraphic(id) {
@@ -564,6 +590,23 @@ function renderPriorityGuide() {
   elements.tutorialNext.hidden = false;
 }
 
+function showPauseReview() {
+  const goal = GOALS[goalForPhase(activePhase().id, session.phaseElapsed)] || GOALS.balance;
+  const orderedGuide = PRIORITY_GUIDE.slice().sort((a, b) => goal.priority.indexOf(a.id) - goal.priority.indexOf(b.id));
+  elements.pauseReview.querySelector('h4').textContent = `${goal.label} 우선순위 다시 보기`;
+  elements.pauseReview.querySelector('p').textContent = `${goal.rule} 순서가 기억나면 훈련을 계속하세요.`;
+  elements.pauseReviewList.innerHTML = orderedGuide.map((item, index) => `
+    <li><b>${String(index + 1).padStart(2, '0')}</b><span>${item.action}</span></li>`).join('');
+  elements.pauseReview.hidden = false;
+  elements.decisionCard.hidden = false;
+  elements.decisionCard.dataset.state = 'paused';
+}
+
+function hidePauseReview() {
+  elements.pauseReview.hidden = true;
+  if (elements.decisionCard.dataset.state === 'paused') delete elements.decisionCard.dataset.state;
+}
+
 function answerTutorial(answerId) {
   if (!tutorial.active || tutorial.kind !== 'decision' || tutorial.answered) return;
   const item = TUTORIAL_CASES[tutorial.index];
@@ -604,11 +647,11 @@ function showDecision() {
   });
   elements.decisionFeedback.textContent = '';
   elements.decisionFeedback.className = 'decision-feedback';
-  elements.decisionStatus.textContent = '응답 3초';
+  elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 2초' : '응답 3초';
   elements.decisionCard.dataset.state = 'answering';
   elements.decisionCard.hidden = false;
   window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
+  session.decisionTimer = window.setTimeout(() => closeDecision(false), decisionAnswerMs());
 }
 
 function answerDecision(code) {
@@ -622,13 +665,13 @@ function answerDecision(code) {
   stats.decisionAttempts += 1;
   stats.decisionTimes.push(responseMs);
   if (correct) stats.correctDecisions += 1;
-  if (activePhase().id !== 'transfer') {
+  if (!['transfer', 'challenge'].includes(activePhase().id)) {
     elements.decisionFeedback.textContent = correct ? `사용자가 고른 답이 맞습니다. ${decision.reason}` : `이 문제의 정답은 ${decision.correctLabel}입니다.`;
     elements.decisionFeedback.classList.toggle('wrong', !correct);
   }
   updateLiveMetrics();
   window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(() => closeDecision(true), activePhase().id === 'transfer' ? 180 : 520);
+  session.decisionTimer = window.setTimeout(() => closeDecision(true), ['transfer', 'challenge'].includes(activePhase().id) ? 180 : 520);
   return true;
 }
 
@@ -637,7 +680,7 @@ function closeDecision(answered) {
   if (!decision) return;
   if (!answered && decision.ready && !decision.answered) {
     session.stats[activePhase().id].decisionAttempts += 1;
-    if (activePhase().id !== 'transfer') {
+    if (!['transfer', 'challenge'].includes(activePhase().id)) {
       elements.decisionFeedback.textContent = '사용자가 제한 시간 안에 행동을 고르지 못했습니다.';
       elements.decisionFeedback.classList.add('wrong');
     }
@@ -673,22 +716,24 @@ function tick(now, runId) {
   }
   const delta = Math.min(0.25, (now - session.lastTick) / 1000);
   session.lastTick = now;
-  session.phaseRemaining -= delta;
-  session.totalRemaining -= delta;
+  if (!isUnlimited()) {
+    session.phaseRemaining -= delta;
+    session.totalRemaining -= delta;
+  }
   session.phaseElapsed += delta;
   const phase = activePhase();
   session.stats[phase.id].elapsedSeconds = session.phaseElapsed;
-  elements.phaseTime.textContent = formatClock(session.phaseRemaining);
-  elements.totalTime.textContent = formatClock(session.totalRemaining);
+  elements.phaseTime.textContent = isUnlimited(phase) ? formatClock(session.phaseElapsed) : formatClock(session.phaseRemaining);
+  elements.totalTime.textContent = isUnlimited(phase) ? '무제한' : formatClock(session.totalRemaining);
 
   if (phase.id === 'priority') {
     session.priority = priorityForTime(session.phaseElapsed);
     elements.priorityChip.textContent = session.priority;
-  } else if (phase.id === 'switch' && !session.currentDecision) {
+  } else if (['switch', 'challenge'].includes(phase.id) && !session.currentDecision) {
     elements.priorityChip.textContent = GOALS[goalForPhase(phase.id, session.phaseElapsed)].label;
   }
 
-  if (session.phaseRemaining <= 0) {
+  if (!isUnlimited(phase) && session.phaseRemaining <= 0) {
     advancePhase();
   } else {
     if (Math.floor(session.phaseElapsed * 2) % 2 === 0) updateLiveMetrics();
@@ -738,12 +783,14 @@ function returnHome(message = '') {
   session.practice = false;
   clearPhaseTimers();
   elements.pauseOverlay.hidden = true;
+  hidePauseReview();
   elements.playPanel.hidden = true;
   elements.resultPanel.hidden = true;
   elements.startPanel.hidden = false;
   elements.app.dataset.state = 'idle';
   elements.totalTimeLabel.textContent = '전체 시간';
   elements.totalTime.textContent = '10:00';
+  elements.phaseClockLabel.textContent = '남은 시간';
   elements.phaseList.querySelectorAll('li').forEach((item) => {
     item.classList.remove('active', 'done');
     item.querySelector('button')?.removeAttribute('aria-current');
@@ -778,20 +825,23 @@ function pauseSession(reason = 'manual') {
     page: '앱은 사용자가 다른 화면을 본 시간을 훈련 시간에 포함하지 않습니다.',
     manual: '앱은 사용자가 일시정지한 시간을 훈련 시간에 포함하지 않습니다.'
   };
-  elements.pauseOverlay.hidden = currentPage !== 'trainer';
+  const reviewOnRight = isUnlimited();
+  elements.pauseOverlay.hidden = reviewOnRight || currentPage !== 'trainer';
   elements.pauseOverlay.querySelector('p').textContent = messages[reason] || messages.manual;
+  if (reviewOnRight) showPauseReview();
 }
 
 function resumeSession() {
   if (!session.running || !session.paused) return;
   session.paused = false;
   elements.pauseOverlay.hidden = true;
+  hidePauseReview();
   session.lastTick = performance.now();
   if (hasMotor()) scheduleMotor();
   if (hasDecision() && session.currentDecision) {
     session.currentDecision.shownAt = performance.now();
-    elements.decisionStatus.textContent = '응답 3초';
-    session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
+    elements.decisionStatus.textContent = activePhase().id === 'challenge' ? '응답 2초' : '응답 3초';
+    session.decisionTimer = window.setTimeout(() => closeDecision(false), decisionAnswerMs());
   } else if (hasDecision()) {
     scheduleDecision(700);
   }
@@ -840,6 +890,7 @@ elements.motorTarget.addEventListener('click', handleTargetClick);
 elements.pauseButton.addEventListener('click', () => pauseSession('manual'));
 elements.homeButton.addEventListener('click', () => returnHome('현재 훈련을 멈추고 홈으로 돌아왔습니다.'));
 elements.resumeButton.addEventListener('click', resumeSession);
+elements.pauseReviewResume.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
   if (event.repeat || tutorial.active || !session.running || session.paused) return;

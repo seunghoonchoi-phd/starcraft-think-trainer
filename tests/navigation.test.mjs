@@ -36,7 +36,7 @@ test('the trainer uses the full viewport and enlarges its content', () => {
 
 test('the trainer exposes immediate start, stage practice, pause, and home controls', () => {
   assert.match(html, /id="start-button"[^>]*>바로 훈련 시작</);
-  assert.equal((html.match(/class="phase-button"/g) || []).length, 8);
+  assert.equal((html.match(/class="[^"]*\bphase-button\b[^"]*"/g) || []).length, 9);
   assert.match(html, /id="pause-button"/);
   assert.match(html, /일시정지/);
   assert.match(html, /id="home-button"/);
@@ -65,6 +65,9 @@ test('the trainer exposes immediate start, stage practice, pause, and home contr
   assert.match(app, /function beginPhase\(\)/);
   assert.match(app, /function openPhaseTutorial\(phase, onComplete\)/);
   assert.match(app, /튜토리얼을 닫았습니다\. 홈에서 원하는 단계를 다시 선택하세요/);
+  assert.match(html, /data-phase="challenge"/);
+  assert.match(app, /function isUnlimited\(phase = activePhase\(\)\)/);
+  assert.match(app, /function showPauseReview\(\)/);
   assert.match(app, /startSession\(false, button\.closest\('li'\)\?\.dataset\.phase\)/);
   assert.match(app, /if \(!decision \|\| !decision\.ready \|\| decision\.answered \|\| !hasDecision\(\)\) return false/);
 });

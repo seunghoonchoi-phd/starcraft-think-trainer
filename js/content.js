@@ -87,12 +87,12 @@ const ISSUES = {
 };
 
 export const PRIORITY_GUIDE = [
-  { rank: '01', action: '기지 방어', condition: '적 병력이 본진에 곧 도착합니다.' },
-  { rank: '02', action: '보급 건물 건설', condition: '보급이 막히기 전에 생산 길을 엽니다.' },
-  { rank: '03', action: '생산 재개', condition: '자원이 있는데 생산 건물이 비어 있습니다.' },
-  { rank: '04', action: '적 정보 확인', condition: '상대 병력과 위치 정보를 오래 확인하지 못했습니다.' },
-  { rank: '05', action: '새 기지 건설', condition: '즉시 위험이 없고 자원이 충분합니다.' },
-  { rank: '06', action: '공격 실행', condition: '아군 병력이 가까운 곳에서 확실히 우세합니다.' }
+  { id: 'defend', rank: '01', action: '기지 방어', condition: '적 병력이 본진에 곧 도착합니다.' },
+  { id: 'supply', rank: '02', action: '보급 건물 건설', condition: '보급이 막히기 전에 생산 길을 엽니다.' },
+  { id: 'produce', rank: '03', action: '생산 재개', condition: '자원이 있는데 생산 건물이 비어 있습니다.' },
+  { id: 'scout', rank: '04', action: '적 정보 확인', condition: '상대 병력과 위치 정보를 오래 확인하지 못했습니다.' },
+  { id: 'expand', rank: '05', action: '새 기지 건설', condition: '즉시 위험이 없고 자원이 충분합니다.' },
+  { id: 'pressure', rank: '06', action: '공격 실행', condition: '아군 병력이 가까운 곳에서 확실히 우세합니다.' }
 ];
 
 export const TUTORIAL_CASES = [
@@ -207,9 +207,10 @@ export function createDecision(goalId = 'balance', options = {}) {
 }
 
 export function goalForPhase(phaseId, elapsedSeconds) {
-  if (phaseId === 'switch') {
+  if (phaseId === 'switch' || phaseId === 'challenge') {
     const rotation = ['survive', 'grow', 'attack'];
-    return rotation[Math.floor(elapsedSeconds / 16) % rotation.length];
+    const interval = phaseId === 'challenge' ? 10 : 16;
+    return rotation[Math.floor(elapsedSeconds / interval) % rotation.length];
   }
   return 'balance';
 }

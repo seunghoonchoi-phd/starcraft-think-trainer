@@ -23,7 +23,7 @@ test('switch phase rotates explicit goals', () => {
 });
 
 test('priority phase rotates all three priorities', () => {
-  assert.equal(priorityForTime(0), '손 우선');
+  assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');
-  assert.equal(priorityForTime(40), '균형');
+  assert.equal(priorityForTime(40), '동일 비중');
 });

@@ -26,6 +26,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--paper); color: var(--ink); overflow-x: hidden; }
+h1, h2, h3, p, blockquote, .result-detail, .result-metrics small { word-break: keep-all; overflow-wrap: break-word; }
 button, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
@@ -115,7 +116,7 @@ kbd { font-family: "IBM Plex Mono", monospace; }
 .console-wrap { min-width: 0; position: relative; }
 .start-panel, .result-panel { min-height: 720px; padding: 76px clamp(32px, 7vw, 90px); display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle at 90% 10%, rgba(83,226,202,.13), transparent 32%), linear-gradient(135deg, #0c1b2c, #07111f 70%); }
 .console-kicker { margin: 0 0 16px; color: var(--cyan); font: 700 11px "IBM Plex Mono", monospace; letter-spacing: .14em; }
-.start-panel h3, .result-panel h3 { margin: 0; max-width: 700px; font-size: clamp(31px,4.2vw,52px); line-height: 1.22; letter-spacing: -.05em; }
+.start-panel h3, .result-panel h3 { margin: 0; max-width: 700px; font-size: clamp(31px,4.2vw,52px); line-height: 1.22; letter-spacing: -.05em; word-break: keep-all; overflow-wrap: break-word; }
 .start-panel > div:first-child > p:last-child { max-width: 690px; margin: 24px 0 0; color: #aebac7; line-height: 1.8; }
 .start-panel kbd { display: inline-block; min-width: 26px; margin: 0 2px; padding: 2px 7px; text-align: center; color: var(--cyan); border: 1px solid rgba(83,226,202,.4); border-radius: 4px; background: rgba(83,226,202,.08); }
 .setup-grid { max-width: 690px; margin-top: 34px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px; }

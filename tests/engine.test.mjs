@@ -61,3 +61,31 @@ test('retention is unavailable when a baseline has no valid performance', () => 
   assert.equal(summary.motorRetention, null);
   assert.equal(summary.thinkingRetention, null);
 });
+
+test('fast wrong answers cannot hide a loss of decision accuracy', () => {
+  const phases = Object.fromEntries(PHASES.map((phase) => [phase.id, blankStats()]));
+  phases.motor = { ...blankStats(), elapsedSeconds: 60, validActions: 40, motorAttempts: 40 };
+  phases.decision = {
+    ...blankStats(),
+    elapsedSeconds: 40,
+    decisionAttempts: 10,
+    correctDecisions: 10,
+    decisionTimes: Array(10).fill(1000)
+  };
+  for (const id of ['dual', 'priority', 'switch', 'inhibit']) {
+    phases[id] = {
+      ...blankStats(),
+      elapsedSeconds: 60,
+      validActions: 40,
+      motorAttempts: 40,
+      decisionAttempts: 10,
+      correctDecisions: 2,
+      decisionTimes: Array(10).fill(200)
+    };
+  }
+
+  const summary = computeSessionSummary(phases);
+  assert.equal(summary.efficiencyRetention, 1);
+  assert.equal(summary.accuracyRetention, 0.2);
+  assert.equal(summary.thinkingRetention, 0.2);
+});

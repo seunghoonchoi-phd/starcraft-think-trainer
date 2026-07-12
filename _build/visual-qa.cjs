@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     }
     const decision = page.locator('#decision-card');
     if (await decision.isVisible()) await page.keyboard.press('q');
-    if (!trainingShot && (await page.locator('#phase-name').textContent()) === '둘을 같이') {
+    if (!trainingShot && (await page.locator('#phase-name').textContent()) === '동시 수행') {
       await page.screenshot({ path: path.join(out, 'training-desktop.png'), fullPage: false });
       trainingShot = true;
     }
@@ -53,7 +53,7 @@ const { chromium } = require('playwright');
     desktopOverflow,
     mobileOverflow,
     trainingShot,
-    resultVisible: resultVisible && /SESSION COMPLETE/.test(resultText),
+    resultVisible: resultVisible && /훈련 결과/.test(resultText),
     phaseAtEnd: await page.locator('#phase-name').textContent(),
     phaseTimeAtEnd: await page.locator('#phase-time').textContent(),
     totalTimeAtEnd: await page.locator('#total-time').textContent(),

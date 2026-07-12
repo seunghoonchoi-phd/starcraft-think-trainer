@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07111f">
-  <meta name="description" content="손이 바빠져도 판단을 놓치지 않도록 훈련하는 연구 기반 스타크래프트형 이중과제 트레이너">
-  <meta property="og:title" content="스타크래프트 생각·손 훈련소">
-  <meta property="og:description" content="APM보다 중요한 것, 손이 바쁠 때 생각이 얼마나 남는지 측정합니다.">
-  <title>스타크래프트 생각·손 훈련소</title>
+  <meta name="description" content="앱은 사용자가 빠르게 입력할 때의 입력 속도와 판단 정확도를 측정하고, 두 과제를 함께 연습하게 합니다.">
+  <meta property="og:title" content="스타크래프트 입력·판단 훈련">
+  <meta property="og:description" content="앱은 사용자가 입력만 할 때와 입력하면서 판단할 때의 속도와 정확도를 비교합니다.">
+  <title>스타크래프트 입력·판단 훈련</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
@@ -17,12 +17,12 @@
   <header class="site-header">
     <a class="brand" href="#top" aria-label="처음으로">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span>생각·손 훈련소</span>
+      <span>입력·판단 훈련</span>
     </a>
     <nav aria-label="주요 메뉴">
       <a href="#trainer">훈련</a>
-      <a href="#mechanism">원리</a>
-      <a href="#evidence">근거</a>
+      <a href="#mechanism">훈련 방법</a>
+      <a href="#evidence">연구 근거</a>
     </nav>
     <button id="install-button" class="ghost-button" type="button" hidden>앱 설치</button>
   </header>
@@ -30,16 +30,16 @@
   <main id="top">
     <section class="hero section-shell">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="pulse-dot"></span> STARCRAFT-STYLE DUAL-TASK TRAINING</p>
-        <h1>손은 바쁜데,<br><em>생각은 멈추나요?</em></h1>
-        <p class="hero-lede">손이 느린 게 아닐 수 있습니다. 아직 익숙하지 않은 입력과 판단이 같은 처리 공간을 놓고 부딪히면, 손을 빠르게 움직일수록 다음 판단이 늦어집니다.</p>
+        <p class="eyebrow"><span class="pulse-dot"></span> 스타크래프트 입력·판단 훈련</p>
+        <h1>사용자가 입력 속도를 올리면<br><em>판단 시간이 길어지나요?</em></h1>
+        <p class="hero-lede">숫자 키와 마우스 입력 순서에 익숙하지 않은 사용자는 다음 입력을 기억하고 확인해야 합니다. 사용자가 게임 상황도 동시에 판단하면, 사용자는 입력 순서와 게임 상황을 번갈아 확인해야 합니다. 그 결과 사용자의 판단 시간이 길어질 수 있습니다.</p>
         <div class="hero-actions">
-          <a class="primary-button" href="#trainer">10분 진단·훈련 시작</a>
-          <a class="text-link" href="#mechanism">왜 이런지 먼저 보기 <span aria-hidden="true">→</span></a>
+          <a class="primary-button" href="#trainer">10분 측정·훈련 시작</a>
+          <a class="text-link" href="#mechanism">판단이 느려지는 이유 보기 <span aria-hidden="true">→</span></a>
         </div>
-        <p class="honesty-note">로그인 없음 · 기록은 이 기기에만 저장 · 원시 APM은 점수에서 제외</p>
+        <p class="honesty-note">사용자는 로그인하지 않아도 됩니다. 앱은 기록을 이 기기에만 저장하고, 전체 입력 수(APM)는 점수로 계산하지 않습니다.</p>
       </div>
-      <div class="hero-visual" aria-label="손 입력과 판단이 합쳐지는 훈련 구조">
+      <div class="hero-visual" aria-label="입력 과제와 판단 과제를 함께 수행하는 훈련 화면">
         <div class="radar-grid" aria-hidden="true">
           <span class="radar-sweep"></span>
           <span class="map-node n1">1</span><span class="map-node n2">2</span>
@@ -50,44 +50,44 @@
           </svg>
         </div>
         <div class="metric-card floating-card">
-          <span>생각 보존율</span>
+          <span>판단 성적 유지율</span>
           <strong>?</strong>
-          <small>손을 움직일 때도 남는 판단</small>
+          <small>앱이 정확도와 반응 시간을 기준선과 비교합니다</small>
         </div>
         <div class="command-strip" aria-hidden="true"><kbd>1</kbd><span>→</span><kbd>2</kbd><span>→</span><kbd>3</kbd><span>→</span><kbd>4</kbd></div>
       </div>
     </section>
 
-    <section class="diagnosis-strip" aria-label="가능한 원인 세 가지">
-      <div><b>01</b><span><strong>손만 해도 꼬인다</strong>입력 묶음부터 천천히</span></div>
-      <div><b>02</b><span><strong>판단만 해도 늦다</strong>규칙·피로부터 확인</span></div>
-      <div><b>03</b><span><strong>둘을 합치면 무너진다</strong>이중과제 비용을 훈련</span></div>
+    <section class="diagnosis-strip" aria-label="판단이 느려지는 경우 세 가지">
+      <div><b>01</b><span><strong>입력 과제의 정확도가 낮다</strong>사용자는 숫자 키와 클릭 순서를 먼저 연습해야 합니다.</span></div>
+      <div><b>02</b><span><strong>판단 과제의 정확도가 낮다</strong>사용자는 우선순위 규칙과 피로 상태를 먼저 확인해야 합니다.</span></div>
+      <div><b>03</b><span><strong>두 과제를 함께 할 때 성적이 낮다</strong>사용자는 입력과 판단을 함께 수행하는 연습을 해야 합니다.</span></div>
     </section>
 
     <section id="trainer" class="trainer-section section-shell">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">10-MINUTE SESSION</p>
-          <h2>빠른 손보다, <em>생각이 남는 손</em></h2>
+          <p class="eyebrow">10분 측정·훈련</p>
+          <h2>앱이 입력 속도와 판단 정확도를<br><em>각각 측정합니다</em></h2>
         </div>
-        <p>첫 100초 동안 손과 판단을 따로 잽니다. 그다음 둘을 합쳐 어디서 무너지는지 찾고, 난이도를 한 축씩 조절합니다.</p>
+        <p>앱은 첫 100초 동안 입력 과제와 판단 과제를 따로 측정합니다. 이후 사용자가 두 과제를 함께 수행하면, 앱은 입력 속도와 판단 정확도가 각각 얼마나 달라졌는지 계산합니다. 앱은 한 번에 한 조건만 바꿔 난이도를 조절합니다.</p>
       </div>
 
       <div id="app" class="trainer-app" data-state="idle">
         <aside class="session-rail" aria-label="훈련 단계">
           <div class="session-time">
-            <span>SESSION</span>
+            <span>전체 시간</span>
             <strong id="total-time">10:00</strong>
           </div>
           <ol id="phase-list">
             <li data-phase="prepare"><b>01</b><span>준비<small>규칙 확인</small></span></li>
-            <li data-phase="motor"><b>02</b><span>손 기준선<small>생각 없이 입력</small></span></li>
-            <li data-phase="decision"><b>03</b><span>판단 기준선<small>손 없이 선택</small></span></li>
-            <li data-phase="dual"><b>04</b><span>둘을 같이<small>판단 유지</small></span></li>
-            <li data-phase="priority"><b>05</b><span>우선순위<small>한쪽 포기 금지</small></span></li>
-            <li data-phase="switch"><b>06</b><span>규칙 전환<small>목표 바꾸기</small></span></li>
-            <li data-phase="inhibit"><b>07</b><span>멈춤<small>성급한 입력 줄이기</small></span></li>
-            <li data-phase="transfer"><b>08</b><span>새 조합<small>피드백 없는 검사</small></span></li>
+            <li data-phase="motor"><b>02</b><span>입력 기준선<small>입력만 수행</small></span></li>
+            <li data-phase="decision"><b>03</b><span>판단 기준선<small>판단만 수행</small></span></li>
+            <li data-phase="dual"><b>04</b><span>동시 수행<small>입력과 판단을 함께 수행</small></span></li>
+            <li data-phase="priority"><b>05</b><span>우선 과제 변경<small>입력과 판단 중 우선 과제 표시</small></span></li>
+            <li data-phase="switch"><b>06</b><span>판단 규칙 변경<small>기지 방어·생산·공격 규칙 변경</small></span></li>
+            <li data-phase="inhibit"><b>07</b><span>입력 억제<small>STOP 표적에서 입력하지 않기</small></span></li>
+            <li data-phase="transfer"><b>08</b><span>변경 조건 검사<small>정답을 알려 주지 않고 측정</small></span></li>
           </ol>
         </aside>
 
@@ -95,8 +95,8 @@
           <section id="start-panel" class="start-panel">
             <div>
               <p class="console-kicker">오늘의 목표</p>
-              <h3>손 기준선의 85%를 지키면서<br>판단을 놓치지 않기</h3>
-              <p>원 안의 표적은 <kbd>1</kbd>부터 <kbd>4</kbd>까지 표시된 키를 누른 뒤 클릭합니다. 판단 카드가 나오면 보기의 <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> 중 하나를 고릅니다.</p>
+              <h3>입력 속도를 기준선의 85% 이상 유지하면서<br>판단 문제를 풀기</h3>
+              <p>앱이 원 안에 숫자를 표시하면, 사용자는 같은 숫자 키를 누른 뒤 원을 클릭합니다. 앱이 판단 카드를 표시하면, 사용자는 <kbd>Q</kbd>, <kbd>W</kbd>, <kbd>E</kbd> 중 정답에 해당하는 키를 누릅니다.</p>
             </div>
             <div class="setup-grid">
               <label>오늘 몸 상태
@@ -117,21 +117,21 @@
               <button id="start-button" class="primary-button" type="button">10분 세션 시작</button>
               <button id="demo-button" class="ghost-button" type="button">45초 체험</button>
             </div>
-            <p class="small-print">키보드와 마우스가 있는 데스크톱에 맞춰 만들었습니다. 이 도구는 의료 검사나 지능 검사가 아닙니다.</p>
+            <p class="small-print">이 앱은 키보드와 마우스를 사용하는 데스크톱 환경을 지원합니다. 이 앱은 사용자의 건강 상태나 지능을 검사하지 않습니다.</p>
           </section>
 
           <section id="play-panel" class="play-panel" hidden aria-live="polite">
             <div class="console-topbar">
               <div><span id="phase-number">01</span><strong id="phase-name">준비</strong></div>
-              <div id="priority-chip" class="priority-chip">균형</div>
+              <div id="priority-chip" class="priority-chip">동일 비중</div>
               <div class="phase-clock"><span>남은 시간</span><strong id="phase-time">00:20</strong></div>
             </div>
 
-            <div class="live-metrics" aria-label="현재 훈련 수치">
-              <div><span>유효 동작</span><strong id="live-actions">0</strong><small>/분</small></div>
-              <div><span>입력 정확도</span><strong id="live-motor-accuracy">—</strong></div>
-              <div><span>판단 정확도</span><strong id="live-decision-accuracy">—</strong></div>
-              <div><span>불필요 입력</span><strong id="live-noise">0</strong></div>
+            <div class="live-metrics" aria-label="현재 훈련 측정값">
+              <div><span>완료 동작</span><strong id="live-actions">0</strong><small>/분</small></div>
+              <div><span>입력 정확도</span><strong id="live-motor-accuracy">측정 전</strong></div>
+              <div><span>판단 정확도</span><strong id="live-decision-accuracy">측정 전</strong></div>
+              <div><span>잘못된 입력</span><strong id="live-noise">0</strong></div>
             </div>
 
             <div class="training-stage">
@@ -145,8 +145,8 @@
                   <small>키 → 클릭</small>
                 </button>
                 <div id="map-message" class="map-message">
-                  <strong>준비하세요</strong>
-                  <span>세션이 시작되면 이곳에 표적이 나타납니다.</span>
+                  <strong>앱이 훈련을 시작합니다</strong>
+                  <span>세션이 시작되면 앱이 이곳에 표적을 표시합니다.</span>
                 </div>
               </div>
 
@@ -155,7 +155,7 @@
                   <span>상황 판단</span>
                   <b id="decision-timer">●</b>
                 </div>
-                <p id="decision-rule">지금 목표에서 가장 먼저 처리할 일을 고르세요.</p>
+                <p id="decision-rule">사용자는 현재 목표에서 우선순위가 가장 높은 행동을 골라야 합니다.</p>
                 <ul id="issue-list"></ul>
                 <div id="decision-options" class="decision-options"></div>
                 <p id="decision-feedback" class="decision-feedback" aria-live="polite"></p>
@@ -163,26 +163,26 @@
             </div>
 
             <div class="command-hud">
-              <div><span>손 순환</span><strong id="motor-order">1 → 2 → 3 → 4</strong></div>
+              <div><span>입력 순서</span><strong id="motor-order">1 → 2 → 3 → 4</strong></div>
               <div><span>판단 키</span><strong>Q · W · E</strong></div>
-              <p id="coach-line">정확하게 끝낸 동작만 점수에 들어갑니다.</p>
+              <p id="coach-line">앱은 숫자 키와 클릭을 순서대로 완료한 동작만 점수로 계산합니다.</p>
             </div>
             <button id="pause-button" class="pause-button" type="button">일시정지</button>
           </section>
 
           <section id="result-panel" class="result-panel" hidden>
-            <p class="console-kicker">SESSION COMPLETE</p>
-            <h3 id="result-title">오늘의 병목을 찾았습니다.</h3>
+            <p class="console-kicker">훈련 결과</p>
+            <h3 id="result-title">앱이 입력과 판단의 변화를 계산했습니다.</h3>
             <p id="result-summary"></p>
             <div class="result-metrics">
-              <article><span>손 유지율</span><strong id="result-motor">—</strong><small>손만 할 때와 비교</small></article>
-              <article class="featured"><span>생각 보존율</span><strong id="result-thinking">—</strong><small>손을 움직일 때 남은 판단</small></article>
-              <article><span>새 조합 정확도</span><strong id="result-transfer">—</strong><small>연습에 없던 순서</small></article>
+              <article><span>입력 속도 유지율</span><strong id="result-motor">측정 전</strong><small>앱이 입력 기준선과 비교합니다</small></article>
+              <article class="featured"><span>판단 성적 유지율</span><strong id="result-thinking">측정 전</strong><small>앱이 정확도와 반응 시간을 기준선과 비교합니다</small></article>
+              <article><span>새 상황 판단 정확도</span><strong id="result-transfer">측정 전</strong><small>앱이 새 문제에서 판단 정확도를 측정합니다</small></article>
             </div>
             <div class="result-detail" id="result-detail"></div>
             <div class="result-actions">
               <button id="restart-button" class="primary-button" type="button">한 번 더 훈련</button>
-              <button id="export-button" class="ghost-button" type="button">기록 JSON 저장</button>
+              <button id="export-button" class="ghost-button" type="button">훈련 기록 파일 저장</button>
             </div>
           </section>
         </div>
@@ -190,12 +190,12 @@
 
       <div class="history-panel">
         <div>
-          <p class="eyebrow">LOCAL PROGRESS</p>
-          <h3>앱 점수와 실제 게임은 따로 봅니다</h3>
-          <p>이곳의 향상은 훈련 과제에 가까운 능력의 변화입니다. 실제 전이는 리플레이에서 교전 중 생산 공백, 공급 막힘, 큰 판단 누락이 줄었는지 따로 확인하세요.</p>
+          <p class="eyebrow">이 기기에 저장한 최근 기록</p>
+          <h3>사용자는 앱 기록과 실제 게임 기록을 따로 비교해야 합니다</h3>
+          <p>앱 기록은 이 훈련 과제에서 측정한 입력 속도와 판단 정확도를 보여 줍니다. 사용자는 실제 게임 리플레이를 열어 교전 중 생산 공백 시간, 보급 한도 초과 시간, 주요 판단 누락 횟수가 줄었는지 따로 확인해야 합니다.</p>
         </div>
-        <div id="history-chart" class="history-chart" aria-label="최근 생각 보존율 기록">
-          <p>첫 세션을 끝내면 최근 기록이 여기에 쌓입니다.</p>
+        <div id="history-chart" class="history-chart" aria-label="최근 판단 성적 유지율 기록">
+          <p>사용자가 첫 세션을 끝내면 앱이 최근 기록을 여기에 표시합니다.</p>
         </div>
       </div>
     </section>
@@ -203,36 +203,36 @@
     <section id="mechanism" class="mechanism-section">
       <div class="section-shell">
         <div class="section-heading light">
-          <div><p class="eyebrow">HOW IT WORKS</p><h2>손을 더 재촉하면<br><em>판단이 더 먼저 무너집니다</em></h2></div>
-          <p>두 가지 빠른 일을 겹치면 뇌가 행동을 고르는 단계에서 줄이 생깁니다. 반복 동작을 짧은 묶음으로 익히고, 정확도를 지킨 상태에서만 속도를 올려야 생각할 자리가 남습니다.</p>
+          <div><p class="eyebrow">훈련 방법</p><h2>사용자가 입력과 판단을 함께 수행하면<br><em>사용자의 반응 시간이 길어질 수 있습니다</em></h2></div>
+          <p>사용자가 짧은 시간에 두 행동을 연속으로 선택하면, 두 번째 행동의 반응 시간이 길어질 수 있습니다. 이 앱은 사용자가 고정된 입력 순서를 연습한 뒤 입력 과제와 판단 과제를 함께 수행하게 합니다. 앱은 두 과제의 정확도가 기준을 넘을 때만 표적 표시 간격을 줄입니다.</p>
         </div>
         <div class="mechanism-grid">
-          <article><b>01</b><span class="mini-diagram single"></span><h3>따로 재기</h3><p>손과 판단을 따로 해 봅니다. 둘 중 무엇이 원래 느린지 먼저 분리합니다.</p></article>
-          <article><b>02</b><span class="mini-diagram chunk"></span><h3>동작 묶기</h3><p>1→2→3→4처럼 짧은 순서를 정확히 반복합니다. 난사한 키는 점수가 아닙니다.</p></article>
-          <article><b>03</b><span class="mini-diagram dual"></span><h3>둘을 합치기</h3><p>손 순환 중 우선순위를 고릅니다. 한쪽을 멈춰 만든 높은 점수는 인정하지 않습니다.</p></article>
-          <article><b>04</b><span class="mini-diagram transfer"></span><h3>새 조합에 써 보기</h3><p>순서와 규칙을 바꾸고 피드백 없이 검사합니다. 외운 요령과 전이를 구분합니다.</p></article>
+          <article><b>01</b><span class="mini-diagram single"></span><h3>두 과제를 따로 측정</h3><p>사용자는 입력 과제와 판단 과제를 따로 수행합니다. 앱은 각 과제의 속도와 정확도를 기준선으로 저장합니다.</p></article>
+          <article><b>02</b><span class="mini-diagram chunk"></span><h3>고정 입력 순서 연습</h3><p>사용자는 1→2→3→4 순서로 숫자 키와 클릭을 반복합니다. 앱은 틀리거나 반복해서 누른 키를 점수로 계산하지 않습니다.</p></article>
+          <article><b>03</b><span class="mini-diagram dual"></span><h3>입력하면서 판단</h3><p>사용자는 입력 순서를 계속 수행하면서 우선순위 문제를 풉니다. 사용자가 한 과제를 중단하면 앱은 해당 구간을 통과로 처리하지 않습니다.</p></article>
+          <article><b>04</b><span class="mini-diagram transfer"></span><h3>바뀐 조건에서 검사</h3><p>앱은 입력 순서와 판단 규칙을 바꾼 뒤 정답을 바로 알려 주지 않습니다. 이 검사는 사용자가 연습과 다른 문제에도 규칙을 적용하는지 측정합니다.</p></article>
         </div>
       </div>
     </section>
 
     <section id="evidence" class="evidence-section section-shell">
       <div class="section-heading">
-        <div><p class="eyebrow">EVIDENCE & LIMITS</p><h2>근거는 쓰되,<br><em>효과를 부풀리지 않습니다</em></h2></div>
-        <p>이 앱의 구성은 이중과제, 운동 자동화, 난이도 조절, 변형 연습 연구에서 가져왔습니다. 하지만 이 10분 앱이 래더 티어를 올린다는 직접 연구는 아직 없습니다.</p>
+        <div><p class="eyebrow">연구 근거와 한계</p><h2>이 앱은 연구자들이 확인하지 않은 효과를<br><em>주장하지 않습니다</em></h2></div>
+        <p>연구자들은 참가자에게 입력과 판단을 함께 수행하게 했습니다. 연구자들은 반복 연습, 과제 난이도, 연습 순서가 참가자의 수행 결과를 어떻게 바꾸는지도 조사했습니다. 이 앱은 그 연구 결과를 참고해 훈련 순서를 정했습니다. 연구자들은 이 앱이 스타크래프트 래더 티어를 올리는지 직접 시험하지 않았습니다.</p>
       </div>
       <div class="evidence-layout">
         <div class="claim-card">
-          <span>현재 말할 수 있는 범위</span>
-          <blockquote>“손을 움직일 때 판단이 얼마나 남는지 측정하고, 스타크래프트와 닮은 시간 압박과 우선순위 전환을 함께 연습합니다.”</blockquote>
-          <p>뇌 기능 향상, ADHD 개선, 실력 상승 보장 같은 말은 하지 않습니다.</p>
+          <span>이 앱이 제공하는 기능</span>
+          <blockquote>“이 앱은 입력만 할 때와 입력하면서 판단할 때의 속도와 정확도를 비교합니다. 사용자는 제한된 시간 안에 입력 순서를 수행하고 우선순위 문제를 풉니다.”</blockquote>
+          <p>이 앱은 뇌 기능 향상, ADHD 증상 개선, 스타크래프트 실력 상승을 보장하지 않습니다.</p>
         </div>
         <ol class="source-list">
-          <li><span>이중과제 병목</span><a href="https://pubmed.ncbi.nlm.nih.gov/7972591/" target="_blank" rel="noreferrer">Pashler, 1994 <b>↗</b></a></li>
-          <li><span>연습 뒤 간섭 감소</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5385484/" target="_blank" rel="noreferrer">Strobach & Schubert, 2017 <b>↗</b></a></li>
-          <li><span>적정 난이도</span><a href="https://pubmed.ncbi.nlm.nih.gov/15130871/" target="_blank" rel="noreferrer">Guadagnoli & Lee, 2004 <b>↗</b></a></li>
-          <li><span>변형 연습과 전이</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11349744/" target="_blank" rel="noreferrer">Czyż et al., 2024 <b>↗</b></a></li>
-          <li><span>RTS와 인지 유연성</span><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0070350" target="_blank" rel="noreferrer">Glass et al., 2013 <b>↗</b></a></li>
-          <li><span>게임 훈련의 작은 효과</span><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285925" target="_blank" rel="noreferrer">Smith & Basak, 2023 <b>↗</b></a></li>
+          <li><span>두 과제를 함께 할 때 생기는 반응 지연</span><a href="https://pubmed.ncbi.nlm.nih.gov/7972591/" target="_blank" rel="noreferrer">Pashler, 1994 <b>↗</b></a></li>
+          <li><span>반복 연습 뒤 줄어든 두 과제의 성능 저하</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5385484/" target="_blank" rel="noreferrer">Strobach & Schubert, 2017 <b>↗</b></a></li>
+          <li><span>사용자 수준에 맞춘 과제 난이도</span><a href="https://pubmed.ncbi.nlm.nih.gov/15130871/" target="_blank" rel="noreferrer">Guadagnoli & Lee, 2004 <b>↗</b></a></li>
+          <li><span>연습 문제와 다른 문제에서 측정한 수행 결과</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11349744/" target="_blank" rel="noreferrer">Czyż et al., 2024 <b>↗</b></a></li>
+          <li><span>실시간 전략 게임 훈련과 과제 전환 성적</span><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0070350" target="_blank" rel="noreferrer">Glass et al., 2013 <b>↗</b></a></li>
+          <li><span>게임 훈련 연구에서 보고한 평균 효과</span><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285925" target="_blank" rel="noreferrer">Smith & Basak, 2023 <b>↗</b></a></li>
         </ol>
       </div>
     </section>
@@ -240,13 +240,13 @@
 
   <footer>
     <div class="section-shell">
-      <p><strong>생각·손 훈련소</strong> 연구 원리를 바탕으로 만든 무료 실험 도구 · Blizzard와 무관한 비공식 프로젝트</p>
-      <p>개인정보를 보내지 않습니다. 기록은 브라우저의 localStorage에만 남습니다.</p>
+      <p><strong>스타크래프트 입력·판단 훈련:</strong> 이 앱은 연구 결과를 참고해 만든 무료 실험 도구입니다. 이 프로젝트는 Blizzard와 관련이 없습니다.</p>
+      <p>이 앱은 개인정보와 훈련 기록을 서버로 보내지 않습니다. 브라우저는 훈련 기록을 브라우저 저장 공간(localStorage)에만 저장합니다.</p>
     </div>
   </footer>
 
   <div id="pause-overlay" class="pause-overlay" hidden>
-    <div><span>PAUSED</span><h2>훈련을 멈췄습니다</h2><p>탭을 벗어난 시간은 기록하지 않습니다.</p><button id="resume-button" class="primary-button" type="button">계속하기</button></div>
+    <div><span>일시정지</span><h2>앱이 훈련 시간을 멈췄습니다</h2><p>앱은 사용자가 다른 탭을 본 시간을 훈련 시간에 포함하지 않습니다.</p><button id="resume-button" class="primary-button" type="button">훈련 계속하기</button></div>
   </div>
 
   <script type="module" src="js/app.js"></script>

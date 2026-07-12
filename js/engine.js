@@ -1,12 +1,12 @@
 export const PHASES = [
   { id: 'prepare', name: '준비', seconds: 20, mode: 'none' },
-  { id: 'motor', name: '손 기준선', seconds: 60, mode: 'motor' },
+  { id: 'motor', name: '입력 기준선', seconds: 60, mode: 'motor' },
   { id: 'decision', name: '판단 기준선', seconds: 40, mode: 'decision' },
-  { id: 'dual', name: '둘을 같이', seconds: 120, mode: 'dual' },
-  { id: 'priority', name: '우선순위', seconds: 120, mode: 'dual' },
-  { id: 'switch', name: '규칙 전환', seconds: 70, mode: 'dual' },
-  { id: 'inhibit', name: '멈춤', seconds: 60, mode: 'dual' },
-  { id: 'transfer', name: '새 조합', seconds: 110, mode: 'dual' }
+  { id: 'dual', name: '동시 수행', seconds: 120, mode: 'dual' },
+  { id: 'priority', name: '우선 과제 변경', seconds: 120, mode: 'dual' },
+  { id: 'switch', name: '판단 규칙 변경', seconds: 70, mode: 'dual' },
+  { id: 'inhibit', name: '입력 억제', seconds: 60, mode: 'dual' },
+  { id: 'transfer', name: '변경 조건 검사', seconds: 110, mode: 'dual' }
 ];
 
 export const DEMO_PHASES = PHASES.map((phase) => ({
@@ -72,14 +72,18 @@ export function computeSessionSummary(rawByPhase) {
   const combined = summarizePhase(combinedRaw);
   const transfer = phases.transfer || summarizePhase();
   const motorRetention = motor.actionRate > 0 ? clamp(safeRatio(combined.actionRate, motor.actionRate), 0, 1.25) : null;
-  const thinkingRetention = decision.decisionEfficiency > 0 ? clamp(safeRatio(combined.decisionEfficiency, decision.decisionEfficiency), 0, 1.25) : null;
+  const efficiencyRetention = decision.decisionEfficiency > 0 ? clamp(safeRatio(combined.decisionEfficiency, decision.decisionEfficiency), 0, 1.25) : null;
   const accuracyRetention = decision.decisionAccuracy > 0 ? clamp(safeRatio(combined.decisionAccuracy, decision.decisionAccuracy), 0, 1.25) : null;
+  const thinkingRetention = efficiencyRetention !== null && accuracyRetention !== null
+    ? Math.min(efficiencyRetention, accuracyRetention)
+    : null;
   return {
     phases,
     baseline: { motor, decision },
     combined,
     transfer,
     motorRetention,
+    efficiencyRetention,
     thinkingRetention,
     accuracyRetention,
     profile: classifyProfile({ motor, decision, combined, motorRetention, thinkingRetention })
@@ -88,18 +92,18 @@ export function computeSessionSummary(rawByPhase) {
 
 export function classifyProfile({ motor, decision, combined, motorRetention, thinkingRetention }) {
   if (motor.motorAccuracy < 0.78 || motor.actionRate < 12) {
-    return { id: 'motor', title: '손 순서부터 묶을 때입니다', advice: '속도를 올리기 전에 1→2→3→4 순서를 정확히 끝내세요. 다음 세션은 손 정확도 90%를 먼저 노립니다.' };
+    return { id: 'motor', title: '사용자는 숫자 키와 클릭 순서를 먼저 연습해야 합니다', advice: '사용자의 입력 정확도가 기준보다 낮았습니다. 사용자는 다음 세션에서 속도를 올리지 말고 1→2→3→4 순서로 숫자 키를 누른 뒤 표적을 클릭해야 합니다. 사용자는 입력 정확도 90%를 목표로 연습해야 합니다.' };
   }
   if (decision.decisionAccuracy < 0.7) {
-    return { id: 'decision', title: '판단 규칙부터 가볍게 만드세요', advice: '손을 쉬게 해도 선택이 흔들렸습니다. 피로를 확인하고, 화면의 우선순위 규칙을 천천히 익힌 뒤 다시 합치세요.' };
+    return { id: 'decision', title: '사용자는 우선순위 규칙을 먼저 익혀야 합니다', advice: '사용자가 입력 과제를 하지 않은 구간에서도 판단 정확도가 기준보다 낮았습니다. 사용자는 피로 상태와 화면에 표시된 우선순위 규칙을 확인한 뒤 판단 과제를 다시 수행해야 합니다.' };
   }
   if (motorRetention < 0.75 || thinkingRetention < 0.72) {
-    return { id: 'dual', title: '둘을 합칠 때 병목이 생깁니다', advice: '손과 판단은 따로 할 수 있지만 함께하면 한쪽이 크게 줄었습니다. 평소 속도의 80~85%에서 두 축을 같이 지키는 연습이 맞습니다.' };
+    return { id: 'dual', title: '두 과제를 함께 수행할 때 성적이 낮아졌습니다', advice: '두 과제를 함께 수행한 구간에서 사용자의 입력 속도나 판단 성적 중 하나가 기준선보다 많이 낮아졌습니다. 사용자는 다음 세션에서 입력 속도를 기준선의 80~85%로 유지하면서 판단 문제를 함께 풀어야 합니다.' };
   }
   if ((combined.noiseInputs || 0) > (combined.validActions || 0) * 0.35) {
-    return { id: 'noise', title: '빠르지만 헛입력이 많습니다', advice: '원시 입력 수는 높지만 끝까지 맞게 수행한 동작이 적습니다. 반복키와 선입력을 줄이면 판단할 틈도 같이 늘어납니다.' };
+    return { id: 'noise', title: '사용자의 잘못된 입력 횟수가 많았습니다', advice: '사용자의 전체 입력 수는 많았지만, 사용자가 숫자 키와 클릭을 정확한 순서로 완료한 횟수는 적었습니다. 사용자는 다음 세션에서 반복 입력과 앱이 표적을 표시하기 전에 누르는 키를 줄이고, 화면에 표시된 순서만 입력해야 합니다.' };
   }
-  return { id: 'balanced', title: '손과 판단을 함께 잘 지켰습니다', advice: '다음 세션에서는 속도보다 새 조합 정확도를 올리세요. 실제 게임에서는 교전 중 생산 공백이 줄었는지 따로 확인합니다.' };
+  return { id: 'balanced', title: '사용자가 입력 속도와 판단 성적을 함께 유지했습니다', advice: '사용자는 다음 세션에서 변경 조건 검사의 판단 정확도를 높여야 합니다. 사용자는 실제 게임 리플레이를 열어 교전 중 생산 공백 시간이 줄었는지 따로 확인해야 합니다.' };
 }
 
 export function adjustMotorInterval(currentMs, motorAccuracy, decisionAccuracy) {
@@ -123,7 +127,7 @@ export function blankStats() {
 }
 
 export function formatPercent(value) {
-  if (!Number.isFinite(value)) return '—';
+  if (!Number.isFinite(value)) return '측정 불가';
   return `${Math.round(value * 100)}%`;
 }
 

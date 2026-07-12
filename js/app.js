@@ -75,7 +75,7 @@ const session = {
   currentTarget: null,
   currentDecision: null,
   motorIndex: 0,
-  priority: '균형',
+  priority: '동일 비중',
   summary: null
 };
 
@@ -105,13 +105,13 @@ function saveRecord(summary) {
 function renderHistory() {
   const records = loadStore().records.filter((record) => Number.isFinite(record.thinkingRetention)).slice(-10);
   if (!records.length) {
-    elements.historyChart.innerHTML = '<p>첫 세션을 끝내면 최근 기록이 여기에 쌓입니다.</p>';
+    elements.historyChart.innerHTML = '<p>사용자가 첫 세션을 끝내면 앱이 최근 기록을 여기에 표시합니다.</p>';
     return;
   }
   elements.historyChart.innerHTML = records.map((record) => {
     const value = Math.max(8, Math.min(100, Math.round(record.thinkingRetention * 100)));
     const label = new Date(record.date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
-    return `<div class="history-bar" style="height:${value}%" title="${label} 생각 보존율 ${value}%"><span>${value}</span></div>`;
+    return `<div class="history-bar" style="height:${value}%" title="${label} 판단 성적 유지율 ${value}%"><span>${value}</span></div>`;
   }).join('');
 }
 
@@ -167,12 +167,12 @@ function setupPhase() {
   elements.phaseNumber.textContent = String(session.phaseIndex + 1).padStart(2, '0');
   elements.phaseName.textContent = phase.name;
   elements.phaseTime.textContent = formatClock(session.phaseRemaining);
-  elements.priorityChip.textContent = phase.id === 'priority' ? '손 우선' : (phase.id === 'switch' ? GOALS.survive.label : '균형');
+  elements.priorityChip.textContent = phase.id === 'priority' ? '입력 우선' : (phase.id === 'switch' ? GOALS.survive.label : '동일 비중');
   elements.motorOrder.textContent = phase.id === 'transfer' ? '4 → 2 → 1 → 3' : '1 → 2 → 3 → 4';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
-    ? '<strong>정확도가 먼저입니다</strong><span>맞는 숫자 키를 누른 뒤 표적을 클릭하세요.</span>'
-    : '<strong>판단 기준선</strong><span>지금은 손을 쉬고 판단 카드만 풉니다.</span>';
+    ? '<strong>앱은 정확하게 완료한 입력만 점수로 계산합니다</strong><span>사용자는 화면에 표시된 숫자 키를 누른 뒤 표적을 클릭해야 합니다.</span>'
+    : '<strong>앱이 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 숫자 키를 누르지 않고 판단 문제만 풀어야 합니다.</span>';
   elements.decisionCard.hidden = true;
   elements.motorTarget.hidden = true;
   elements.decisionFeedback.textContent = '';
@@ -197,14 +197,14 @@ function updatePhaseRail() {
 function updateCoach() {
   const phase = activePhase();
   const lines = {
-    prepare: '곧 손과 판단을 따로 잽니다. 속도를 억지로 올리지 마세요.',
-    motor: '숫자 키를 누른 뒤 표적을 클릭해야 유효 동작입니다.',
-    decision: '화면의 규칙 안에서 가장 먼저 처리할 일을 고르세요.',
-    dual: '손 순환을 멈추지 말고 판단 카드를 함께 처리하세요.',
-    priority: '한쪽 우선이라고 다른 한쪽을 완전히 버리면 안 됩니다.',
-    switch: '상단 목표가 바뀌면 같은 상황의 우선순위도 달라집니다.',
-    inhibit: '빨간 STOP 표적에서는 아무 키도 누르지 마세요.',
-    transfer: '순서가 4→2→1→3으로 바뀝니다. 지금은 정답 피드백이 없습니다.'
+    prepare: '앱은 곧 입력 과제와 판단 과제를 따로 측정합니다. 사용자는 정확도를 유지할 수 있는 속도로 입력해야 합니다.',
+    motor: '사용자가 숫자 키를 누른 뒤 표적을 클릭하면 앱이 완료 동작 한 개를 기록합니다.',
+    decision: '사용자는 화면에 표시된 우선순위 규칙에 따라 가장 먼저 처리할 행동을 골라야 합니다.',
+    dual: '사용자는 입력 순서를 계속 수행하면서 판단 문제도 풀어야 합니다.',
+    priority: '앱이 한 과제를 우선 과제로 표시해도 사용자는 다른 과제를 계속 수행해야 합니다.',
+    switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
+    inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키를 누르거나 표적을 클릭하면 안 됩니다.',
+    transfer: '앱이 입력 순서를 4→2→1→3으로 바꿉니다. 앱은 이 구간에서 정답을 바로 알려 주지 않습니다.'
   };
   elements.coachLine.textContent = lines[phase.id];
 }
@@ -350,7 +350,7 @@ function answerDecision(code) {
   stats.decisionTimes.push(responseMs);
   if (correct) stats.correctDecisions += 1;
   if (activePhase().id !== 'transfer') {
-    elements.decisionFeedback.textContent = correct ? `정확합니다. ${decision.reason}` : `지금은 ${decision.correctLabel}이 먼저입니다.`;
+    elements.decisionFeedback.textContent = correct ? `사용자가 고른 답이 맞습니다. ${decision.reason}` : `이 문제의 정답은 ${decision.correctLabel}입니다.`;
     elements.decisionFeedback.classList.toggle('wrong', !correct);
   }
   updateLiveMetrics();
@@ -364,7 +364,7 @@ function closeDecision(answered) {
   if (!answered && !session.currentDecision.answered) {
     session.stats[activePhase().id].decisionAttempts += 1;
     if (activePhase().id !== 'transfer') {
-      elements.decisionFeedback.textContent = '시간 안에 고르지 못했습니다.';
+      elements.decisionFeedback.textContent = '사용자가 제한 시간 안에 행동을 고르지 못했습니다.';
       elements.decisionFeedback.classList.add('wrong');
     }
   }
@@ -379,8 +379,8 @@ function updateLiveMetrics() {
   if (!phase || !session.stats[phase.id]) return;
   const stats = summarizePhase({ ...session.stats[phase.id], elapsedSeconds: Math.max(1, session.phaseElapsed) });
   elements.liveActions.textContent = Math.round(stats.actionRate || 0);
-  elements.liveMotorAccuracy.textContent = stats.motorAttempts ? formatPercent(stats.motorAccuracy) : '—';
-  elements.liveDecisionAccuracy.textContent = stats.decisionAttempts ? formatPercent(stats.decisionAccuracy) : '—';
+  elements.liveMotorAccuracy.textContent = stats.motorAttempts ? formatPercent(stats.motorAccuracy) : '측정 전';
+  elements.liveDecisionAccuracy.textContent = stats.decisionAttempts ? formatPercent(stats.decisionAccuracy) : '측정 전';
   elements.liveNoise.textContent = String(stats.noiseInputs || 0);
 }
 
@@ -453,16 +453,16 @@ function renderResult(summary) {
   const profile = summary.profile;
   elements.resultTitle.textContent = profile.title;
   elements.resultSummary.textContent = session.demo
-    ? `45초 체험 결과입니다. ${profile.advice}`
+    ? `앱이 45초 체험 결과를 계산했습니다. ${profile.advice}`
     : profile.advice;
   elements.resultMotor.textContent = formatPercent(summary.motorRetention);
   elements.resultThinking.textContent = formatPercent(summary.thinkingRetention);
-  elements.resultTransfer.textContent = summary.transfer.decisionAttempts ? formatPercent(summary.transfer.decisionAccuracy) : '자료 부족';
+  elements.resultTransfer.textContent = summary.transfer.decisionAttempts ? formatPercent(summary.transfer.decisionAccuracy) : '판단 응답 없음';
   const baselineRate = Math.round(summary.baseline.motor.actionRate);
   const combinedRate = Math.round(summary.combined.actionRate);
   const baselineDecision = formatPercent(summary.baseline.decision.decisionAccuracy);
   const combinedDecision = formatPercent(summary.combined.decisionAccuracy);
-  elements.resultDetail.innerHTML = `손 기준선은 분당 <strong>${baselineRate}</strong>개, 손과 판단을 합쳤을 때는 <strong>${combinedRate}</strong>개였습니다. 판단 정확도는 <strong>${baselineDecision}</strong>에서 <strong>${combinedDecision}</strong>로 바뀌었습니다. 앱 안 수치가 올라도 실제 게임 전이는 리플레이에서 따로 확인해야 합니다.`;
+  elements.resultDetail.innerHTML = `입력만 수행한 구간에서 사용자는 분당 <strong>${baselineRate}</strong>개의 동작을 완료했습니다. 입력과 판단을 함께 수행한 구간에서는 사용자가 분당 <strong>${combinedRate}</strong>개의 동작을 완료했습니다. 사용자의 판단 정확도는 <strong>${baselineDecision}</strong>에서 <strong>${combinedDecision}</strong>로 바뀌었습니다. 이 앱의 기록이 좋아져도 사용자는 실제 게임 리플레이에서 생산 공백 시간과 판단 누락 횟수가 줄었는지 따로 확인해야 합니다.`;
 }
 
 function pauseSession(auto = false) {
@@ -471,7 +471,7 @@ function pauseSession(auto = false) {
   window.clearTimeout(session.motorTimer);
   window.clearTimeout(session.decisionTimer);
   elements.pauseOverlay.hidden = false;
-  elements.pauseOverlay.querySelector('p').textContent = auto ? '탭을 벗어난 시간은 기록하지 않습니다.' : '쉬는 시간은 기록하지 않습니다.';
+  elements.pauseOverlay.querySelector('p').textContent = auto ? '앱은 사용자가 다른 탭을 본 시간을 훈련 시간에 포함하지 않습니다.' : '앱은 사용자가 일시정지한 시간을 훈련 시간에 포함하지 않습니다.';
 }
 
 function resumeSession() {

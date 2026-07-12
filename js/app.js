@@ -13,6 +13,8 @@ import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
 const BASE_TITLE = '스타크래프트 입력·판단 훈련';
+const DECISION_READING_MS = 3000;
+const DECISION_ANSWER_MS = 4200;
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   pageViews: [...document.querySelectorAll('.page-view[data-page]')],
@@ -24,11 +26,13 @@ const elements = {
   demoButton: $('#demo-button'),
   restartButton: $('#restart-button'),
   exportButton: $('#export-button'),
+  totalTimeLabel: $('#total-time-label'),
   totalTime: $('#total-time'),
   phaseTime: $('#phase-time'),
   phaseNumber: $('#phase-number'),
   phaseName: $('#phase-name'),
   phaseList: $('#phase-list'),
+  phaseButtons: [...document.querySelectorAll('.phase-button')],
   priorityChip: $('#priority-chip'),
   liveActions: $('#live-actions'),
   liveMotorAccuracy: $('#live-motor-accuracy'),
@@ -40,12 +44,14 @@ const elements = {
   targetKey: $('#target-key'),
   motorOrder: $('#motor-order'),
   decisionCard: $('#decision-card'),
+  decisionStatus: $('#decision-status'),
   decisionRule: $('#decision-rule'),
   issueList: $('#issue-list'),
   decisionOptions: $('#decision-options'),
   decisionFeedback: $('#decision-feedback'),
   coachLine: $('#coach-line'),
   pauseButton: $('#pause-button'),
+  homeButton: $('#home-button'),
   pauseOverlay: $('#pause-overlay'),
   resumeButton: $('#resume-button'),
   resultTitle: $('#result-title'),
@@ -54,6 +60,7 @@ const elements = {
   resultThinking: $('#result-thinking'),
   resultTransfer: $('#result-transfer'),
   resultDetail: $('#result-detail'),
+  practiceStatus: $('#practice-status'),
   fatigueSelect: $('#fatigue-select'),
   gameSelect: $('#game-select')
 };
@@ -62,6 +69,8 @@ const session = {
   running: false,
   paused: false,
   demo: false,
+  practice: false,
+  runId: 0,
   phases: PHASES,
   phaseIndex: 0,
   phaseRemaining: 0,
@@ -134,14 +143,31 @@ function hasDecision(phase = activePhase()) {
   return phase && (phase.mode === 'decision' || phase.mode === 'dual');
 }
 
-function startSession(demo = false) {
+function phasesForSession(demo, qaMode) {
+  if (qaMode) return PHASES.map((phase) => ({ ...phase, seconds: 1.5 }));
+  return demo ? DEMO_PHASES : PHASES;
+}
+
+function phaseNumber(phase) {
+  return PHASES.findIndex((candidate) => candidate.id === phase.id) + 1;
+}
+
+function startSession(demo = false, practicePhaseId = null) {
   const qaMode = demo
     && ['127.0.0.1', 'localhost'].includes(location.hostname)
     && new URLSearchParams(location.search).get('qa') === '1';
+  const allPhases = phasesForSession(demo, qaMode);
+  const selectedPhase = practicePhaseId
+    ? allPhases.find((phase) => phase.id === practicePhaseId)
+    : null;
+  if (practicePhaseId && !selectedPhase) return;
+  session.runId += 1;
+  clearPhaseTimers();
   session.running = true;
   session.paused = false;
   session.demo = demo;
-  session.phases = qaMode ? PHASES.map((phase) => ({ ...phase, seconds: 1.5 })) : (demo ? DEMO_PHASES : PHASES);
+  session.practice = Boolean(selectedPhase);
+  session.phases = selectedPhase ? [selectedPhase] : allPhases;
   session.phaseIndex = 0;
   session.totalRemaining = session.phases.reduce((sum, phase) => sum + phase.seconds, 0);
   session.stats = {};
@@ -151,10 +177,12 @@ function startSession(demo = false) {
   elements.resultPanel.hidden = true;
   elements.playPanel.hidden = false;
   elements.app.dataset.state = 'playing';
+  elements.totalTimeLabel.textContent = session.practice ? '단계 시간' : '전체 시간';
+  elements.practiceStatus.hidden = true;
   elements.phaseList.querySelectorAll('li').forEach((item) => item.classList.remove('active', 'done'));
   setupPhase();
   session.lastTick = performance.now();
-  requestAnimationFrame(tick);
+  requestTick();
   elements.mapBoard.focus({ preventScroll: true });
 }
 
@@ -165,7 +193,7 @@ function setupPhase() {
   session.phaseElapsed = 0;
   session.motorIndex = 0;
   session.stats[phase.id] = blankStats();
-  elements.phaseNumber.textContent = String(session.phaseIndex + 1).padStart(2, '0');
+  elements.phaseNumber.textContent = String(phaseNumber(phase)).padStart(2, '0');
   elements.phaseName.textContent = phase.name;
   elements.phaseTime.textContent = formatClock(session.phaseRemaining);
   elements.priorityChip.textContent = phase.id === 'priority' ? '입력 우선' : (phase.id === 'switch' ? GOALS.survive.label : '동일 비중');
@@ -189,9 +217,16 @@ function setupPhase() {
 }
 
 function updatePhaseRail() {
-  elements.phaseList.querySelectorAll('li').forEach((item, index) => {
-    item.classList.toggle('active', index === session.phaseIndex);
-    item.classList.toggle('done', index < session.phaseIndex);
+  const phase = activePhase();
+  const currentNumber = phaseNumber(phase);
+  elements.phaseList.querySelectorAll('li').forEach((item) => {
+    const itemNumber = phaseNumber({ id: item.dataset.phase });
+    const active = item.dataset.phase === phase.id;
+    item.classList.toggle('active', active);
+    item.classList.toggle('done', !session.practice && itemNumber < currentNumber);
+    const button = item.querySelector('button');
+    if (active) button?.setAttribute('aria-current', 'step');
+    else button?.removeAttribute('aria-current');
   });
 }
 
@@ -318,7 +353,8 @@ function showDecision() {
   const goalId = goalForPhase(phase.id, session.phaseElapsed);
   session.currentDecision = {
     ...createDecision(goalId, { transfer: phase.id === 'transfer' }),
-    shownAt: performance.now(),
+    shownAt: 0,
+    ready: false,
     answered: false
   };
   const decision = session.currentDecision;
@@ -326,7 +362,7 @@ function showDecision() {
   elements.decisionRule.textContent = decision.rule;
   elements.issueList.innerHTML = decision.issues.map((issue) => `<li>${issue.text}</li>`).join('');
   elements.decisionOptions.innerHTML = decision.options.map((option) => `
-    <button class="decision-option" type="button" data-code="${option.code}">
+    <button class="decision-option" type="button" data-code="${option.code}" disabled>
       <kbd>${keyLabel(option.code)}</kbd><span>${option.label}</span>
     </button>`).join('');
   elements.decisionOptions.querySelectorAll('button').forEach((button) => {
@@ -334,14 +370,28 @@ function showDecision() {
   });
   elements.decisionFeedback.textContent = '';
   elements.decisionFeedback.className = 'decision-feedback';
+  elements.decisionStatus.textContent = '읽는 시간 3초';
+  elements.decisionCard.dataset.state = 'reading';
   elements.decisionCard.hidden = false;
   window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(() => closeDecision(false), 4200);
+  session.decisionTimer = window.setTimeout(beginDecisionAnswer, DECISION_READING_MS);
+}
+
+function beginDecisionAnswer() {
+  const decision = session.currentDecision;
+  if (!decision || !session.running || session.paused || !hasDecision()) return;
+  decision.ready = true;
+  decision.shownAt = performance.now();
+  elements.decisionStatus.textContent = '판단 시작';
+  elements.decisionCard.dataset.state = 'answering';
+  elements.decisionOptions.querySelectorAll('button').forEach((button) => { button.disabled = false; });
+  window.clearTimeout(session.decisionTimer);
+  session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
 }
 
 function answerDecision(code) {
   const decision = session.currentDecision;
-  if (!decision || decision.answered || !hasDecision()) return false;
+  if (!decision || !decision.ready || decision.answered || !hasDecision()) return false;
   if (!['KeyQ', 'KeyW', 'KeyE'].includes(code)) return false;
   decision.answered = true;
   const stats = session.stats[activePhase().id];
@@ -361,8 +411,9 @@ function answerDecision(code) {
 }
 
 function closeDecision(answered) {
-  if (!session.currentDecision) return;
-  if (!answered && !session.currentDecision.answered) {
+  const decision = session.currentDecision;
+  if (!decision) return;
+  if (!answered && decision.ready && !decision.answered) {
     session.stats[activePhase().id].decisionAttempts += 1;
     if (activePhase().id !== 'transfer') {
       elements.decisionFeedback.textContent = '사용자가 제한 시간 안에 행동을 고르지 못했습니다.';
@@ -370,6 +421,7 @@ function closeDecision(answered) {
     }
   }
   session.currentDecision = null;
+  delete elements.decisionCard.dataset.state;
   elements.decisionCard.hidden = true;
   updateLiveMetrics();
   if (session.running && !session.paused && hasDecision()) scheduleDecision(700 + Math.random() * 650);
@@ -385,11 +437,16 @@ function updateLiveMetrics() {
   elements.liveNoise.textContent = String(stats.noiseInputs || 0);
 }
 
-function tick(now) {
-  if (!session.running) return;
+function requestTick() {
+  const runId = session.runId;
+  requestAnimationFrame((now) => tick(now, runId));
+}
+
+function tick(now, runId) {
+  if (!session.running || runId !== session.runId) return;
   if (session.paused) {
     session.lastTick = now;
-    requestAnimationFrame(tick);
+    requestTick();
     return;
   }
   const delta = Math.min(0.25, (now - session.lastTick) / 1000);
@@ -413,7 +470,7 @@ function tick(now) {
     advancePhase();
   } else {
     if (Math.floor(session.phaseElapsed * 2) % 2 === 0) updateLiveMetrics();
-    requestAnimationFrame(tick);
+    requestTick();
   }
 }
 
@@ -432,13 +489,18 @@ function advancePhase() {
   session.phaseIndex += 1;
   setupPhase();
   session.lastTick = performance.now();
-  requestAnimationFrame(tick);
+  requestTick();
 }
 
 function finishSession() {
+  const completedPhase = activePhase();
   session.running = false;
   session.paused = false;
   clearPhaseTimers();
+  if (session.practice) {
+    returnHome(`${completedPhase.name} 연습을 마쳤습니다. 다른 단계를 누르거나 바로 훈련 시작을 누르세요.`);
+    return;
+  }
   session.summary = computeSessionSummary(session.stats);
   if (!session.demo) saveRecord(session.summary);
   renderResult(session.summary);
@@ -447,6 +509,27 @@ function finishSession() {
   elements.app.dataset.state = 'result';
   elements.phaseList.querySelectorAll('li').forEach((item) => item.classList.add('done'));
   elements.totalTime.textContent = '00:00';
+}
+
+function returnHome(message = '') {
+  session.runId += 1;
+  session.running = false;
+  session.paused = false;
+  session.practice = false;
+  clearPhaseTimers();
+  elements.pauseOverlay.hidden = true;
+  elements.playPanel.hidden = true;
+  elements.resultPanel.hidden = true;
+  elements.startPanel.hidden = false;
+  elements.app.dataset.state = 'idle';
+  elements.totalTimeLabel.textContent = '전체 시간';
+  elements.totalTime.textContent = '10:00';
+  elements.phaseList.querySelectorAll('li').forEach((item) => {
+    item.classList.remove('active', 'done');
+    item.querySelector('button')?.removeAttribute('aria-current');
+  });
+  elements.practiceStatus.hidden = !message;
+  elements.practiceStatus.textContent = message;
 }
 
 function renderResult(summary) {
@@ -486,8 +569,13 @@ function resumeSession() {
   session.lastTick = performance.now();
   if (hasMotor()) scheduleMotor();
   if (hasDecision() && session.currentDecision) {
-    session.currentDecision.shownAt = performance.now();
-    session.decisionTimer = window.setTimeout(() => closeDecision(false), 4200);
+    if (session.currentDecision.ready) {
+      session.currentDecision.shownAt = performance.now();
+      session.decisionTimer = window.setTimeout(() => closeDecision(false), DECISION_ANSWER_MS);
+    } else {
+      elements.decisionStatus.textContent = '읽는 시간 3초';
+      session.decisionTimer = window.setTimeout(beginDecisionAnswer, DECISION_READING_MS);
+    }
   } else if (hasDecision()) {
     scheduleDecision(700);
   }
@@ -506,6 +594,9 @@ function exportRecords() {
 
 elements.startButton.addEventListener('click', () => startSession(false));
 elements.demoButton.addEventListener('click', () => startSession(true));
+elements.phaseButtons.forEach((button) => {
+  button.addEventListener('click', () => startSession(false, button.closest('li')?.dataset.phase));
+});
 elements.restartButton.addEventListener('click', () => {
   elements.resultPanel.hidden = true;
   elements.startPanel.hidden = false;
@@ -515,6 +606,7 @@ elements.restartButton.addEventListener('click', () => {
 elements.exportButton.addEventListener('click', exportRecords);
 elements.motorTarget.addEventListener('click', handleTargetClick);
 elements.pauseButton.addEventListener('click', () => pauseSession('manual'));
+elements.homeButton.addEventListener('click', () => returnHome('현재 훈련을 멈추고 홈으로 돌아왔습니다.'));
 elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {

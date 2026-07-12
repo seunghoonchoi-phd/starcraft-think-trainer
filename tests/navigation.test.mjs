@@ -31,6 +31,22 @@ test('the trainer uses the full viewport and enlarges its content', () => {
   assert.match(css, /\.start-panel > div:first-child > p:last-child,[\s\S]*font-size: 18px/);
   assert.match(css, /\.console-topbar #phase-name \{ font-size: 22px; \}/);
   assert.match(css, /\.decision-option span \{ font-size: 13px; \}/);
+  assert.match(css, /\.base \{[^}]*width: 96px;[^}]*height: 58px;[^}]*font: 700 14px/);
+});
+
+test('the trainer exposes immediate start, stage practice, pause, and home controls', () => {
+  assert.match(html, /id="start-button"[^>]*>바로 훈련 시작</);
+  assert.equal((html.match(/class="phase-button"/g) || []).length, 8);
+  assert.match(html, /id="pause-button"/);
+  assert.match(html, /일시정지/);
+  assert.match(html, /id="home-button"/);
+  assert.match(html, /홈으로/);
+  assert.match(html, /id="decision-status">읽는 시간</);
+  assert.match(app, /const DECISION_READING_MS = 3000/);
+  assert.match(app, /function beginDecisionAnswer\(\)/);
+  assert.match(app, /function returnHome\(message = ''\)/);
+  assert.match(app, /startSession\(false, button\.closest\('li'\)\?\.dataset\.phase\)/);
+  assert.match(app, /if \(!decision \|\| !decision\.ready \|\| decision\.answered \|\| !hasDecision\(\)\) return false/);
 });
 
 test('the app keeps local record export and never renders the removed overview strip', () => {

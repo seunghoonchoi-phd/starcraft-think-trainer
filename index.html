@@ -19,18 +19,19 @@
       <div id="app" class="trainer-app" data-state="idle">
         <aside class="session-rail" aria-label="훈련 단계">
           <div class="session-time">
-            <span>전체 시간</span>
+            <span id="total-time-label">전체 시간</span>
             <strong id="total-time">10:00</strong>
           </div>
+          <p class="rail-guide">단계를 누르면 그 단계만 바로 연습합니다.</p>
           <ol id="phase-list">
-            <li data-phase="prepare"><b>01</b><span>준비<small>규칙 확인</small></span></li>
-            <li data-phase="motor"><b>02</b><span>입력 기준선<small>입력만 수행</small></span></li>
-            <li data-phase="decision"><b>03</b><span>판단 기준선<small>판단만 수행</small></span></li>
-            <li data-phase="dual"><b>04</b><span>동시 수행<small>입력과 판단을 함께 수행</small></span></li>
-            <li data-phase="priority"><b>05</b><span>우선 과제 변경<small>입력과 판단 중 우선 과제 표시</small></span></li>
-            <li data-phase="switch"><b>06</b><span>판단 규칙 변경<small>기지 방어·생산·공격 규칙 변경</small></span></li>
-            <li data-phase="inhibit"><b>07</b><span>입력 억제<small>STOP 표적에서 입력하지 않기</small></span></li>
-            <li data-phase="transfer"><b>08</b><span>변경 조건 검사<small>정답을 알려 주지 않고 측정</small></span></li>
+            <li data-phase="prepare"><button class="phase-button" type="button"><b>01</b><span>준비<small>규칙 확인</small></span></button></li>
+            <li data-phase="motor"><button class="phase-button" type="button"><b>02</b><span>입력 기준선<small>입력만 수행</small></span></button></li>
+            <li data-phase="decision"><button class="phase-button" type="button"><b>03</b><span>판단 기준선<small>판단만 수행</small></span></button></li>
+            <li data-phase="dual"><button class="phase-button" type="button"><b>04</b><span>동시 수행<small>입력과 판단을 함께 수행</small></span></button></li>
+            <li data-phase="priority"><button class="phase-button" type="button"><b>05</b><span>우선 과제 변경<small>입력과 판단 중 우선 과제 표시</small></span></button></li>
+            <li data-phase="switch"><button class="phase-button" type="button"><b>06</b><span>판단 규칙 변경<small>기지 방어·생산·공격 규칙 변경</small></span></button></li>
+            <li data-phase="inhibit"><button class="phase-button" type="button"><b>07</b><span>입력 억제<small>STOP 표적에서 입력하지 않기</small></span></button></li>
+            <li data-phase="transfer"><button class="phase-button" type="button"><b>08</b><span>변경 조건 검사<small>정답을 알려 주지 않고 측정</small></span></button></li>
           </ol>
         </aside>
 
@@ -57,9 +58,10 @@
               </label>
             </div>
             <div class="start-actions">
-              <button id="start-button" class="primary-button" type="button">10분 세션 시작</button>
+              <button id="start-button" class="primary-button" type="button">바로 훈련 시작</button>
               <button id="demo-button" class="ghost-button" type="button">45초 체험</button>
             </div>
+            <p id="practice-status" class="practice-status" role="status" hidden></p>
             <p class="small-print">이 앱은 키보드와 마우스를 사용하는 데스크톱 환경을 지원합니다. 이 앱은 사용자의 건강 상태나 지능을 검사하지 않습니다.</p>
           </section>
 
@@ -67,7 +69,11 @@
             <div class="console-topbar">
               <div><span id="phase-number">01</span><strong id="phase-name">준비</strong></div>
               <div id="priority-chip" class="priority-chip">동일 비중</div>
-              <div class="phase-clock"><span>남은 시간</span><strong id="phase-time">00:20</strong></div>
+              <div class="topbar-actions">
+                <div class="phase-clock"><span>남은 시간</span><strong id="phase-time">00:20</strong></div>
+                <button id="pause-button" class="pause-button" type="button">일시중지</button>
+                <button id="home-button" class="home-button" type="button">홈으로</button>
+              </div>
             </div>
 
             <div class="live-metrics" aria-label="현재 훈련 측정값">
@@ -96,7 +102,7 @@
               <aside id="decision-card" class="decision-card" aria-label="판단 카드" hidden>
                 <div class="decision-head">
                   <span>상황 판단</span>
-                  <b id="decision-timer">●</b>
+                  <strong id="decision-status">읽는 시간</strong>
                 </div>
                 <p id="decision-rule">사용자는 현재 목표에서 우선순위가 가장 높은 행동을 골라야 합니다.</p>
                 <ul id="issue-list"></ul>
@@ -110,7 +116,6 @@
               <div><span>판단 키</span><strong>Q · W · E</strong></div>
               <p id="coach-line">앱은 숫자 키와 클릭을 순서대로 완료한 동작만 점수로 계산합니다.</p>
             </div>
-            <button id="pause-button" class="pause-button" type="button">일시정지</button>
           </section>
 
           <section id="result-panel" class="result-panel" hidden>

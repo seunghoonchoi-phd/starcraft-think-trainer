@@ -139,7 +139,7 @@ body[data-current-page="trainer"] .play-panel { display: flex; flex-direction: c
 body[data-current-page="trainer"] .training-stage { flex: 1; min-height: 0; height: auto; }
 body[data-current-page="trainer"] .session-time span { font-size: 12px; }
 body[data-current-page="trainer"] .session-time strong { font-size: 28px; }
-body[data-current-page="trainer"] .session-rail li { padding-block: 12px; }
+body[data-current-page="trainer"] .session-rail li { padding: 0; }
 body[data-current-page="trainer"] .session-rail li b { font-size: 11px; }
 body[data-current-page="trainer"] .session-rail li span { font-size: 15px; }
 body[data-current-page="trainer"] .session-rail li small { font-size: 11px; }
@@ -176,7 +176,8 @@ body[data-current-page="trainer"] .decision-option span { font-size: 13px; }
 body[data-current-page="trainer"] .command-hud span { font-size: 10px; }
 body[data-current-page="trainer"] .command-hud strong { font-size: 15px; }
 body[data-current-page="trainer"] .command-hud p { font-size: 12px; }
-body[data-current-page="trainer"] .pause-button { font-size: 11px; }
+body[data-current-page="trainer"] .pause-button,
+body[data-current-page="trainer"] .home-button { font-size: 12px; }
 body[data-current-page="trainer"] .result-metrics span,
 body[data-current-page="trainer"] .result-metrics small { font-size: 12px; }
 body[data-current-page="trainer"] .result-detail { font-size: 14px; }
@@ -184,8 +185,11 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .session-time { display: flex; justify-content: space-between; align-items: end; padding: 6px 6px 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .session-time span { font: 600 10px "IBM Plex Mono", monospace; color: #73869b; letter-spacing: .12em; }
 .session-time strong { font: 700 23px "IBM Plex Mono", monospace; color: var(--cyan); }
+.rail-guide { margin: 16px 8px 6px; color: #718398; font-size: 11px; line-height: 1.5; }
 .session-rail ol { list-style: none; padding: 16px 0 0; margin: 0; display: grid; gap: 5px; }
-.session-rail li { display: flex; align-items: center; gap: 11px; padding: 10px 8px; border-radius: 9px; color: #74879c; transition: background .2s, color .2s; }
+.session-rail li { border-radius: 9px; color: #74879c; transition: background .2s, color .2s; }
+.phase-button { width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 8px; color: inherit; border: 0; border-radius: inherit; background: transparent; text-align: left; cursor: pointer; font: inherit; }
+.phase-button:hover, .phase-button:focus-visible { color: var(--white); background: rgba(255,255,255,.07); outline: none; }
 .session-rail li b { font: 600 10px "IBM Plex Mono", monospace; }
 .session-rail li span, .session-rail li small { display: block; }
 .session-rail li span { font-size: 13px; font-weight: 700; }
@@ -205,6 +209,7 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .setup-grid select { width: 100%; margin-top: 8px; padding: 13px 14px; color: var(--white); border: 1px solid rgba(255,255,255,.15); border-radius: 9px; background: #13273b; }
 .start-actions, .result-actions { display: flex; gap: 14px; margin-top: 26px; }
 .start-panel .ghost-button, .result-panel .ghost-button { border-color: rgba(255,255,255,.18); color: var(--white); }
+.practice-status { max-width: 780px; margin: 18px 0 0; color: var(--cyan); font-size: 14px; }
 .small-print { max-width: 650px; margin: 22px 0 0; color: #6f8297; font-size: 11px; }
 
 .play-panel { min-height: 720px; padding: 18px; background: #07111f; }
@@ -213,9 +218,13 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .console-topbar #phase-number { color: var(--orange); font: 700 11px "IBM Plex Mono", monospace; }
 .console-topbar #phase-name { font-size: 18px; }
 .priority-chip { padding: 7px 13px; border: 1px solid rgba(83,226,202,.35); border-radius: 99px; color: var(--cyan); font: 700 11px "IBM Plex Mono", monospace; }
-.phase-clock { justify-self: end; display: flex; align-items: baseline; gap: 9px; }
+.topbar-actions { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.phase-clock { display: flex; align-items: baseline; gap: 9px; }
 .phase-clock span { color: #708398; font-size: 10px; }
 .phase-clock strong { color: var(--cyan); font: 700 18px "IBM Plex Mono", monospace; }
+.pause-button, .home-button { padding: 8px 11px; color: #d8e4ed; border: 1px solid rgba(255,255,255,.16); border-radius: 8px; background: #13273b; font-size: 10px; font-weight: 800; cursor: pointer; }
+.pause-button:hover, .pause-button:focus-visible { color: var(--ink); border-color: var(--cyan); background: var(--cyan); outline: none; }
+.home-button:hover, .home-button:focus-visible { color: var(--ink); border-color: var(--orange); background: var(--orange); outline: none; }
 
 .live-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 12px; border: 1px solid rgba(255,255,255,.09); border-radius: 11px; background: #0c1b2b; }
 .live-metrics > div { padding: 11px 14px; border-right: 1px solid rgba(255,255,255,.08); }
@@ -229,7 +238,8 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .map-board:focus-visible { box-shadow: 0 0 0 3px var(--orange); }
 .map-grid { position: absolute; inset: 0; opacity: .34; background-image: linear-gradient(rgba(83,226,202,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(83,226,202,.08) 1px, transparent 1px); background-size: 34px 34px; transform: perspective(700px) rotateX(12deg) scale(1.1); }
 .map-board::after { content: ""; position: absolute; width: 65%; aspect-ratio: 1; left: 50%; top: 50%; transform: translate(-50%,-50%); border: 1px dashed rgba(83,226,202,.14); border-radius: 50%; pointer-events: none; }
-.base { position: absolute; width: 70px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 6px; background: #10283e; transform: skew(-5deg); color: #91a3b5; font: 600 9px "IBM Plex Mono", monospace; }
+.base { position: absolute; width: 96px; height: 58px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.22); border-radius: 7px; background: #10283e; transform: skew(-5deg); color: #d4e2ed; font: 700 14px "IBM Plex Mono", monospace; }
+.base span { transform: skew(5deg); }
 .base::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(83,226,202,.18); }
 .home-base { left: 8%; bottom: 11%; }.production-base { right: 12%; top: 13%; }.scout-base { right: 18%; bottom: 16%; }
 .motor-target { position: absolute; z-index: 5; width: 92px; height: 92px; transform: translate(-50%,-50%); color: var(--ink); border: 0; border-radius: 50%; background: var(--cyan); cursor: crosshair; box-shadow: 0 0 0 8px rgba(83,226,202,.13), 0 0 32px rgba(83,226,202,.28); animation: target-in .16s ease-out; }
@@ -246,7 +256,7 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 
 .decision-card { display: flex; flex-direction: column; padding: 18px; border: 1px solid rgba(255,122,69,.24); border-radius: 13px; background: #111e2e; box-shadow: inset 0 3px 0 rgba(255,122,69,.65); }
 .decision-head { display: flex; justify-content: space-between; align-items: center; color: var(--orange); font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .08em; }
-.decision-head b { animation: blink 1s infinite; }
+.decision-head strong { color: var(--cyan); font: inherit; }
 @keyframes blink { 50% { opacity: .3; } }
 .decision-card > p { color: #9dadbc; font-size: 11px; line-height: 1.55; }
 .decision-card ul { list-style: none; padding: 0; margin: 4px 0 12px; display: grid; gap: 7px; }
@@ -254,6 +264,8 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .decision-options { display: grid; gap: 7px; margin-top: auto; }
 .decision-option { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 9px; padding: 9px; text-align: left; color: var(--white); border: 1px solid rgba(255,255,255,.11); border-radius: 7px; background: #182b3e; cursor: pointer; }
 .decision-option:hover, .decision-option:focus-visible { border-color: var(--cyan); background: #1b354a; }
+.decision-card[data-state="reading"] .decision-options { opacity: .48; }
+.decision-option:disabled { cursor: not-allowed; }
 .decision-option kbd { display: grid; place-items: center; width: 28px; height: 26px; border-radius: 5px; background: #07111f; color: var(--cyan); font-size: 11px; }
 .decision-option span { font-size: 11px; font-weight: 700; }
 .decision-feedback { min-height: 30px; margin: 8px 0 0 !important; color: var(--cyan) !important; }
@@ -263,8 +275,6 @@ body[data-current-page="trainer"] .result-detail { font-size: 14px; }
 .command-hud span { display: block; color: #6f8296; font-size: 8px; }
 .command-hud strong { color: var(--cyan); font: 600 12px "IBM Plex Mono", monospace; }
 .command-hud p { margin: 0; color: #9cabb9; font-size: 10px; text-align: right; }
-.pause-button { position: absolute; right: 24px; bottom: 9px; color: #6e8193; border: 0; background: transparent; font-size: 9px; cursor: pointer; }
-
 .result-panel { align-items: stretch; padding-block: 44px; }
 .result-panel > p:nth-of-type(2) { max-width: 720px; color: #9aabba; line-height: 1.7; }
 .result-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 26px; }

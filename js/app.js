@@ -14,6 +14,7 @@ import { createDecision, goalForPhase, priorityForTime, GOALS, PRIORITY_GUIDE, T
 const STORAGE_KEY = 'think-hands-trainer-v1';
 const BASE_TITLE = '이중과제 입력·판단 훈련';
 const DECISION_ANSWER_MS = 3000;
+const DECISION_FEEDBACK_MS = 3000;
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   pageViews: [...document.querySelectorAll('.page-view[data-page]')],
@@ -789,7 +790,7 @@ function answerDecision(code) {
   }
   updateLiveMetrics();
   window.clearTimeout(session.decisionTimer);
-  session.decisionTimer = window.setTimeout(() => closeDecision(true), activePhase().id === 'challenge' ? 1100 : (activePhase().id === 'transfer' ? 180 : 520));
+  session.decisionTimer = window.setTimeout(() => closeDecision(true), activePhase().id === 'challenge' ? DECISION_FEEDBACK_MS : (activePhase().id === 'transfer' ? 180 : 520));
   return true;
 }
 
@@ -803,7 +804,7 @@ function closeDecision(answered) {
       elements.decisionFeedback.classList.add('wrong');
       if (activePhase().id === 'challenge') {
         decision.answered = true;
-        session.decisionTimer = window.setTimeout(() => closeDecision(true), 1100);
+        session.decisionTimer = window.setTimeout(() => closeDecision(true), DECISION_FEEDBACK_MS);
         return;
       }
     }

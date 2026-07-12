@@ -82,7 +82,8 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(app, /if \(!decision \|\| !decision\.ready \|\| decision\.answered \|\| !hasDecision\(\)\) return false/);
   assert.match(app, /정답입니다\. \$\{decision\.reason\}/);
   assert.match(app, /오답입니다\. 정답은 \$\{decision\.correctLabel\}입니다\. \$\{decision\.reason\}/);
-  assert.match(app, /activePhase\(\)\.id === 'challenge' \? 1100/);
+  assert.match(app, /const DECISION_FEEDBACK_MS = 3000/);
+  assert.match(app, /activePhase\(\)\.id === 'challenge' \? DECISION_FEEDBACK_MS/);
 });
 
 test('the app keeps local record export and never renders the removed overview strip', () => {

@@ -84,6 +84,8 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(app, /오답입니다\. 정답은 \$\{decision\.correctLabel\}입니다\. \$\{decision\.reason\}/);
   assert.match(app, /const DECISION_FEEDBACK_MS = 3000/);
   assert.match(app, /activePhase\(\)\.id === 'challenge' \? DECISION_FEEDBACK_MS/);
+  assert.match(app, /같은 상황을 다시 보고 답을 고르세요/);
+  assert.match(app, /decision\.answered = false;[\s\S]*decision\.shownAt = performance\.now\(\)/);
 });
 
 test('the app keeps local record export and never renders the removed overview strip', () => {

@@ -783,13 +783,20 @@ function answerDecision(code) {
   stats.decisionTimes.push(responseMs);
   if (correct) stats.correctDecisions += 1;
   if (activePhase().id !== 'transfer') {
-    elements.decisionFeedback.textContent = correct
-      ? `정답입니다. ${decision.reason}`
-      : `오답입니다. 정답은 ${decision.correctLabel}입니다. ${decision.reason}`;
+    elements.decisionFeedback.textContent = activePhase().id === 'challenge' && !correct
+      ? '오답입니다. 같은 상황을 다시 보고 답을 고르세요.'
+      : (correct ? `정답입니다. ${decision.reason}` : `오답입니다. 정답은 ${decision.correctLabel}입니다. ${decision.reason}`);
     elements.decisionFeedback.classList.toggle('wrong', !correct);
   }
   updateLiveMetrics();
   window.clearTimeout(session.decisionTimer);
+  if (activePhase().id === 'challenge' && !correct) {
+    decision.answered = false;
+    decision.shownAt = performance.now();
+    elements.decisionStatus.textContent = '다시 응답 4초';
+    session.decisionTimer = window.setTimeout(() => closeDecision(false), decisionAnswerMs());
+    return true;
+  }
   session.decisionTimer = window.setTimeout(() => closeDecision(true), activePhase().id === 'challenge' ? DECISION_FEEDBACK_MS : (activePhase().id === 'transfer' ? 180 : 520));
   return true;
 }
@@ -803,8 +810,9 @@ function closeDecision(answered) {
       elements.decisionFeedback.textContent = '사용자가 제한 시간 안에 행동을 고르지 못했습니다.';
       elements.decisionFeedback.classList.add('wrong');
       if (activePhase().id === 'challenge') {
-        decision.answered = true;
-        session.decisionTimer = window.setTimeout(() => closeDecision(true), DECISION_FEEDBACK_MS);
+        decision.shownAt = performance.now();
+        elements.decisionStatus.textContent = '다시 응답 4초';
+        session.decisionTimer = window.setTimeout(() => closeDecision(false), decisionAnswerMs());
         return;
       }
     }

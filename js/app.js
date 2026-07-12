@@ -282,7 +282,7 @@ function setupPhase() {
   elements.totalTime.textContent = isUnlimited(phase) ? '무제한' : formatClock(session.totalRemaining);
   elements.priorityChip.textContent = phase.id === 'priority'
     ? '입력 우선'
-    : (['switch', 'challenge'].includes(phase.id) ? GOALS.survive.label : '동일 비중');
+    : (phase.id === 'challenge' ? GOALS.balance.label : (phase.id === 'switch' ? GOALS.survive.label : '동일 비중'));
   elements.motorOrder.textContent = hasMotor(phase) ? '명령 대기' : '입력 없음';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
@@ -676,9 +676,14 @@ function renderPriorityGuide() {
 }
 
 function showPauseReview() {
-  const goal = GOALS[goalForPhase(activePhase().id, session.phaseElapsed)] || GOALS.balance;
+  const phase = activePhase();
+  const goal = phase.id === 'challenge'
+    ? GOALS.balance
+    : (GOALS[goalForPhase(phase.id, session.phaseElapsed)] || GOALS.balance);
   const orderedGuide = PRIORITY_GUIDE.slice().sort((a, b) => goal.priority.indexOf(a.id) - goal.priority.indexOf(b.id));
-  elements.pauseReview.querySelector('h4').textContent = `${goal.label} 우선순위 다시 보기`;
+  elements.pauseReview.querySelector('h4').textContent = phase.id === 'challenge'
+    ? '고정 우선순위 다시 보기'
+    : `${goal.label} 우선순위 다시 보기`;
   elements.pauseReview.querySelector('p').textContent = `${goal.rule} 순서가 기억나면 훈련을 계속하세요.`;
   elements.pauseReviewList.innerHTML = orderedGuide.map((item, index) => `
     <li>
@@ -716,7 +721,7 @@ function answerTutorial(answerId) {
 function showDecision() {
   if (session.currentDecision) closeDecision(false);
   const phase = activePhase();
-  const goalId = goalForPhase(phase.id, session.phaseElapsed);
+  const goalId = phase.id === 'challenge' ? 'balance' : goalForPhase(phase.id, session.phaseElapsed);
   session.currentDecision = {
     ...createDecision(goalId, { transfer: phase.id === 'transfer' }),
     shownAt: performance.now(),
@@ -827,7 +832,7 @@ function tick(now, runId) {
   if (phase.id === 'priority') {
     session.priority = priorityForTime(session.phaseElapsed);
     elements.priorityChip.textContent = session.priority;
-  } else if (['switch', 'challenge'].includes(phase.id) && !session.currentDecision) {
+  } else if (phase.id === 'switch' && !session.currentDecision) {
     elements.priorityChip.textContent = GOALS[goalForPhase(phase.id, session.phaseElapsed)].label;
   }
 

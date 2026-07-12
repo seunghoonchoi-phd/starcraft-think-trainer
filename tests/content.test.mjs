@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDecision, goalForPhase, priorityForTime, PRIORITY_GUIDE, TUTORIAL_CASES } from '../js/content.js';
+import { createDecision, goalForPhase, priorityForTime, GOALS, PRIORITY_GUIDE, TUTORIAL_CASES } from '../js/content.js';
 
 function seededRandom(values) {
   let index = 0;
@@ -27,6 +27,7 @@ test('challenge phase keeps one fixed judgment rule', () => {
   assert.equal(goalForPhase('challenge', 0), 'balance');
   assert.equal(goalForPhase('challenge', 20), 'balance');
   assert.equal(goalForPhase('challenge', 40), 'balance');
+  assert.deepEqual(GOALS.balance.priority, ['defend', 'supply', 'produce', 'scout', 'expand', 'pressure']);
 });
 
 test('decision keys follow the left-to-right situation order', () => {

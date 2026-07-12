@@ -72,6 +72,7 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(html, /data-phase="challenge"/);
   assert.match(app, /function isUnlimited\(phase = activePhase\(\)\)/);
   assert.match(app, /function showPauseReview\(\)/);
+  assert.match(app, /phase\.id === 'challenge'\s*\? GOALS\.balance/);
   assert.match(app, /class="pause-review-art"/);
   assert.match(app, /situationGraphic\(item\.id\)/);
   assert.match(app, /return phase\?\.id === 'challenge' \? 4000/);

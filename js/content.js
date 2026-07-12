@@ -2,8 +2,8 @@ import { shuffle } from './engine.js';
 
 export const GOALS = {
   balance: {
-    label: '가장 급한 일 먼저',
-    rule: '본진 위험, 곧 막히는 생산, 자원 사용 순서로 행동을 고르세요.',
+    label: '고정 우선순위',
+    rule: '본진 방어, 임박한 보급 막힘, 유휴 생산 건물, 오래된 적 정보, 안전한 확장, 확실한 공격 기회 순서로 행동을 고르세요.',
     priority: ['defend', 'supply', 'produce', 'scout', 'expand', 'pressure']
   },
   survive: {

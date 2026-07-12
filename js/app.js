@@ -12,11 +12,10 @@ import {
 import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
-const PAGE_ORDER = ['home', 'trainer', 'history', 'mechanism', 'evidence'];
+const PAGE_ORDER = ['home', 'trainer', 'mechanism', 'evidence'];
 const PAGE_LABELS = {
   home: '소개',
   trainer: '훈련',
-  history: '기록',
   mechanism: '훈련 방법',
   evidence: '연구 근거'
 };
@@ -67,7 +66,6 @@ const elements = {
   resultThinking: $('#result-thinking'),
   resultTransfer: $('#result-transfer'),
   resultDetail: $('#result-detail'),
-  historyChart: $('#history-chart'),
   fatigueSelect: $('#fatigue-select'),
   gameSelect: $('#game-select')
 };
@@ -168,19 +166,6 @@ function saveRecord(summary) {
   });
   store.records = store.records.slice(-30);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-}
-
-function renderHistory() {
-  const records = loadStore().records.filter((record) => Number.isFinite(record.thinkingRetention)).slice(-10);
-  if (!records.length) {
-    elements.historyChart.innerHTML = '<p>사용자가 첫 세션을 끝내면 앱이 최근 기록을 여기에 표시합니다.</p>';
-    return;
-  }
-  elements.historyChart.innerHTML = records.map((record) => {
-    const value = Math.max(8, Math.min(100, Math.round(record.thinkingRetention * 100)));
-    const label = new Date(record.date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
-    return `<div class="history-bar" style="height:${value}%" title="${label} 판단 성적 유지율 ${value}%"><span>${value}</span></div>`;
-  }).join('');
 }
 
 function formatClock(seconds) {
@@ -508,7 +493,6 @@ function finishSession() {
   session.summary = computeSessionSummary(session.stats);
   if (!session.demo) saveRecord(session.summary);
   renderResult(session.summary);
-  renderHistory();
   elements.playPanel.hidden = true;
   elements.resultPanel.hidden = false;
   elements.app.dataset.state = 'result';
@@ -614,4 +598,3 @@ if ('serviceWorker' in navigator) {
 }
 
 showPage(false);
-renderHistory();

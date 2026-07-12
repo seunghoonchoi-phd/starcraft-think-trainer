@@ -22,13 +22,12 @@
     <nav class="site-nav" aria-label="화면 선택">
       <a data-page-link href="#home" aria-label="소개 화면">소개</a>
       <a data-page-link href="#trainer" aria-label="훈련 화면">훈련</a>
-      <a data-page-link href="#history" aria-label="기록 화면">기록</a>
       <a data-page-link href="#mechanism" aria-label="훈련 방법 화면"><span class="nav-full">훈련 방법</span><span class="nav-short">방법</span></a>
       <a data-page-link href="#evidence" aria-label="연구 근거 화면"><span class="nav-full">연구 근거</span><span class="nav-short">근거</span></a>
     </nav>
     <nav class="page-stepper" aria-label="이전·다음 화면">
       <a id="previous-page" href="#home" aria-label="이전 화면" hidden>←</a>
-      <span id="page-position" aria-live="polite">1 / 5</span>
+      <span id="page-position" aria-live="polite">1 / 4</span>
       <a id="next-page" href="#trainer" aria-label="다음 화면: 훈련">→</a>
     </nav>
     <button id="install-button" class="ghost-button" type="button" hidden>앱 설치</button>
@@ -191,23 +190,9 @@
             <div class="result-detail" id="result-detail"></div>
             <div class="result-actions">
               <button id="restart-button" class="primary-button" type="button">한 번 더 훈련</button>
-              <a class="ghost-button" href="#history">최근 기록 보기</a>
               <button id="export-button" class="ghost-button" type="button">훈련 기록 파일 저장</button>
             </div>
           </section>
-        </div>
-      </div>
-    </section>
-
-    <section id="history" class="history-page section-shell page-view" data-page="history" tabindex="-1" aria-labelledby="history-title" hidden>
-      <div class="history-panel">
-        <div>
-          <p class="eyebrow">이 기기에 저장한 최근 기록</p>
-          <h2 id="history-title" data-page-title>사용자는 앱 기록과 실제 게임 기록을<br><em>따로 비교해야 합니다</em></h2>
-          <p>앱 기록은 이 훈련 과제에서 측정한 입력 속도와 판단 정확도를 보여 줍니다. 사용자는 실제 게임 리플레이를 열어 교전 중 생산 공백 시간, 보급 한도 초과 시간, 주요 판단 누락 횟수가 줄었는지 따로 확인해야 합니다.</p>
-        </div>
-        <div id="history-chart" class="history-chart" aria-label="최근 판단 성적 유지율 기록">
-          <p>사용자가 첫 세션을 끝내면 앱이 최근 기록을 여기에 표시합니다.</p>
         </div>
       </div>
     </section>

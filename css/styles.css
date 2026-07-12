@@ -79,8 +79,8 @@ kbd { font-family: "IBM Plex Mono", monospace; }
 .text-link { font-size: 15px; font-weight: 800; text-underline-offset: 5px; }
 .honesty-note { margin-top: 22px; font-size: 12px; color: var(--muted); }
 
-.hero-visual { min-height: 460px; position: relative; }
-.radar-grid { position: absolute; inset: 20px 0 0 20px; overflow: hidden; border: 1px solid rgba(83, 226, 202, .35); border-radius: 28px 28px 90px 28px; background-color: var(--ink); background-image: linear-gradient(rgba(83,226,202,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(83,226,202,.08) 1px, transparent 1px), radial-gradient(circle at 70% 18%, rgba(83,226,202,.18), transparent 32%); background-size: 36px 36px, 36px 36px, 100% 100%; box-shadow: var(--shadow); }
+.hero-visual { min-height: 530px; padding-bottom: 68px; position: relative; }
+.radar-grid { position: absolute; inset: 20px 0 68px 20px; overflow: hidden; border: 1px solid rgba(83, 226, 202, .35); border-radius: 28px 28px 90px 28px; background-color: var(--ink); background-image: linear-gradient(rgba(83,226,202,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(83,226,202,.08) 1px, transparent 1px), radial-gradient(circle at 70% 18%, rgba(83,226,202,.18), transparent 32%); background-size: 36px 36px, 36px 36px, 100% 100%; box-shadow: var(--shadow); }
 .radar-grid::before, .radar-grid::after { content: ""; position: absolute; border: 1px solid rgba(83,226,202,.13); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%,-50%); }
 .radar-grid::before { width: 260px; height: 260px; }
 .radar-grid::after { width: 140px; height: 140px; }
@@ -94,7 +94,7 @@ kbd { font-family: "IBM Plex Mono", monospace; }
 .metric-card { position: absolute; z-index: 5; right: -18px; top: 80px; width: 180px; padding: 18px; color: var(--white); background: rgba(17, 37, 58, .92); border: 1px solid rgba(255,255,255,.13); border-radius: 14px; box-shadow: var(--shadow); backdrop-filter: blur(10px); }
 .metric-card span, .metric-card small { display: block; color: #aab7c7; font-size: 11px; }
 .metric-card strong { display: block; color: var(--orange); font: 800 44px/1.1 "IBM Plex Mono", monospace; }
-.command-strip { position: absolute; z-index: 4; left: -8px; bottom: 12px; display: flex; align-items: center; gap: 10px; padding: 14px 17px; background: var(--white); border-radius: 12px; box-shadow: var(--shadow); font: 700 13px "IBM Plex Mono", monospace; }
+.command-strip { position: absolute; z-index: 4; left: 20px; bottom: 10px; display: flex; align-items: center; gap: 10px; padding: 14px 17px; background: var(--white); border-radius: 12px; box-shadow: var(--shadow); font: 700 13px "IBM Plex Mono", monospace; }
 .command-strip kbd { min-width: 30px; padding: 7px; text-align: center; border: 1px solid #bac3ce; border-bottom-width: 3px; border-radius: 6px; background: #eef1f2; }
 .command-strip span { color: var(--orange); }
 
@@ -115,6 +115,28 @@ kbd { font-family: "IBM Plex Mono", monospace; }
 .trainer-section > .section-heading > p { font-size: 14px; line-height: 1.6; }
 
 .trainer-app { display: grid; grid-template-columns: 215px minmax(0,1fr); min-height: 720px; overflow: hidden; scroll-margin-top: 96px; border-radius: 22px; background: var(--ink); color: var(--white); box-shadow: 0 30px 80px rgba(7,17,31,.24); }
+body[data-current-page="trainer"] { background: var(--ink); }
+body[data-current-page="trainer"] .trainer-section {
+  width: 100%;
+  height: calc(100dvh - 84px);
+  min-height: calc(100dvh - 84px);
+  margin: 0;
+  padding: 0;
+}
+body[data-current-page="trainer"] .trainer-section > .section-heading { display: none; }
+body[data-current-page="trainer"] .trainer-app {
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: 230px minmax(0, 1fr);
+  border-radius: 0;
+  box-shadow: none;
+}
+body[data-current-page="trainer"] .console-wrap { height: 100%; min-height: 0; }
+body[data-current-page="trainer"] .start-panel,
+body[data-current-page="trainer"] .result-panel,
+body[data-current-page="trainer"] .play-panel { height: 100%; min-height: 0; }
+body[data-current-page="trainer"] .play-panel { display: flex; flex-direction: column; }
+body[data-current-page="trainer"] .training-stage { flex: 1; min-height: 0; height: auto; }
 .session-rail { padding: 24px 18px; border-right: 1px solid rgba(255,255,255,.09); background: #091522; }
 .session-time { display: flex; justify-content: space-between; align-items: end; padding: 6px 6px 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .session-time span { font: 600 10px "IBM Plex Mono", monospace; color: #73869b; letter-spacing: .12em; }
@@ -272,6 +294,7 @@ footer strong { color: var(--white); }
   .hero-visual { min-height: 420px; }
   .section-heading { grid-template-columns: 1fr; gap: 22px; }
   .trainer-app { grid-template-columns: 170px minmax(0,1fr); }
+  body[data-current-page="trainer"] .trainer-app { grid-template-columns: 170px minmax(0,1fr); }
   .training-stage { grid-template-columns: 1fr; height: auto; }
   .map-board { height: 400px; }
   .decision-card { position: absolute; z-index: 10; width: min(300px, calc(100% - 50px)); right: 28px; top: 150px; min-height: 365px; box-shadow: 0 22px 50px rgba(0,0,0,.5); }
@@ -282,7 +305,7 @@ footer strong { color: var(--white); }
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   .section-shell { width: min(100% - 28px, 1180px); }
   .site-header { height: 62px; padding: 0 15px; gap: 9px; backdrop-filter: none; }
-  .site-header .site-nav { position: fixed; z-index: 45; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(244,242,234,.97); backdrop-filter: blur(18px); }
+  .site-header .site-nav { position: fixed; z-index: 45; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgba(244,242,234,.97); backdrop-filter: blur(18px); }
   .site-header .site-nav a { padding: 13px 4px; text-align: center; border-radius: 0; font-size: 11px; }
   .site-header .site-nav a[aria-current="page"] { box-shadow: inset 0 3px 0 var(--orange); }
   .nav-full { display: none; }
@@ -296,8 +319,9 @@ footer strong { color: var(--white); }
   .hero h1 { font-size: 48px; }
   .hero-lede { font-size: 16px; }
   .hero-actions { align-items: stretch; flex-direction: column; gap: 18px; }
-  .hero-visual { min-height: 350px; }
-  .radar-grid { inset: 0; }
+  .hero-visual { min-height: 414px; padding-bottom: 64px; }
+  .radar-grid { inset: 0 0 64px 0; }
+  .command-strip { left: 0; bottom: 8px; }
   .metric-card { right: 4px; top: 45px; }
   .diagnosis-strip { grid-template-columns: 1fr; margin-inline: 14px; }
   .diagnosis-strip > div { border-right: 0; border-bottom: 1px solid var(--line); }
@@ -305,6 +329,15 @@ footer strong { color: var(--white); }
   .trainer-section > .section-heading { margin-bottom: 22px; }
   .evidence-section { padding-block: 48px 36px; }
   .trainer-app { display: block; min-height: 0; }
+  body[data-current-page="trainer"] .trainer-section {
+    height: auto;
+    min-height: calc(100dvh - 120px - env(safe-area-inset-bottom));
+    padding: 0 0 calc(58px + env(safe-area-inset-bottom));
+  }
+  body[data-current-page="trainer"] .trainer-app { display: block; height: auto; min-height: 100%; }
+  body[data-current-page="trainer"] .start-panel,
+  body[data-current-page="trainer"] .result-panel,
+  body[data-current-page="trainer"] .play-panel { height: auto; min-height: calc(100dvh - 120px - env(safe-area-inset-bottom)); }
   .session-rail { display: none; }
   .start-panel, .result-panel { min-height: 680px; padding: 42px 22px; }
   .setup-grid, .result-metrics { grid-template-columns: 1fr; }
@@ -317,11 +350,7 @@ footer strong { color: var(--white); }
   .decision-card { width: calc(100% - 32px); right: 16px; top: 184px; }
   .command-hud { grid-template-columns: 1fr 1fr; }
   .command-hud p { grid-column: 1 / -1; text-align: left; }
-  .history-page { padding-block: 34px 86px; }
-  .history-panel, .evidence-layout { grid-template-columns: 1fr; }
-  .history-panel { min-height: 0; gap: 30px; padding: 34px 24px; }
-  .history-panel h2 { font-size: 34px; }
-  .history-chart { min-height: 220px; }
+  .evidence-layout { grid-template-columns: 1fr; }
   .mechanism-grid { grid-template-columns: 1fr; }
   .mechanism-section { padding-block: 48px 90px; }
   .mechanism-grid article { min-height: 290px; }

@@ -60,13 +60,13 @@ function routePassed(route) {
   await page.locator('#demo-button').click();
   await page.locator('#play-panel').waitFor({ state: 'visible' });
 
-  await page.locator('.site-nav a[href="#history"]').click();
-  routes.history = await readRoute(page, 'history');
+  await page.locator('.site-nav a[href="#mechanism"]').click();
+  routes.paused = await readRoute(page, 'mechanism');
   const pausedTimeBefore = await page.locator('#total-time').textContent();
   const overlayAway = await page.locator('#pause-overlay').isVisible();
   await page.waitForTimeout(650);
   const pausedTimeAfter = await page.locator('#total-time').textContent();
-  await page.screenshot({ path: path.join(out, 'history-desktop.png'), fullPage: false });
+  await page.screenshot({ path: path.join(out, 'paused-desktop.png'), fullPage: false });
 
   await page.locator('#previous-page').click();
   await page.locator('#trainer').waitFor({ state: 'visible' });
@@ -109,9 +109,9 @@ function routePassed(route) {
   const mobileHome = await readRoute(mobile, 'home');
   const mobileNavVisible = await mobile.locator('.site-nav').isVisible();
   await mobile.screenshot({ path: path.join(out, 'home-mobile.png'), fullPage: false });
-  await mobile.locator('.site-nav a[href="#history"]').click();
-  const mobileHistory = await readRoute(mobile, 'history');
-  await mobile.screenshot({ path: path.join(out, 'history-mobile.png'), fullPage: false });
+  await mobile.locator('.site-nav a[href="#mechanism"]').click();
+  const mobileMechanism = await readRoute(mobile, 'mechanism');
+  await mobile.screenshot({ path: path.join(out, 'method-mobile.png'), fullPage: false });
 
   const report = {
     routes,
@@ -124,7 +124,7 @@ function routePassed(route) {
       overlayOnReturn,
       pauseMessage
     },
-    mobile: { home: mobileHome, history: mobileHistory, navVisible: mobileNavVisible },
+    mobile: { home: mobileHome, mechanism: mobileMechanism, navVisible: mobileNavVisible },
     trainingShot,
     resultVisible: resultVisible && /훈련 결과/.test(resultText),
     phaseAtEnd: await page.locator('#phase-name').textContent(),
@@ -142,7 +142,7 @@ function routePassed(route) {
     && !report.pauseOnPageChange.overlayAway
     && report.pauseOnPageChange.overlayOnReturn
     && report.pauseOnPageChange.pauseMessage.includes('다른 화면');
-  const mobilePassed = routePassed(mobileHome) && routePassed(mobileHistory) && mobileNavVisible;
+  const mobilePassed = routePassed(mobileHome) && routePassed(mobileMechanism) && mobileNavVisible;
   if (errors.length || !allDesktopRoutesPassed || !browserBackWorked || !pausePassed || !mobilePassed || !trainingShot || !report.resultVisible || report.demoRecordSaved) {
     process.stderr.write(JSON.stringify(report, null, 2) + '\n');
     process.exit(1);

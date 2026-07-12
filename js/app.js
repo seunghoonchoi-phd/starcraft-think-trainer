@@ -1,4 +1,4 @@
-import {
+﻿import {
   PHASES,
   DEMO_PHASES,
   adjustMotorInterval,
@@ -44,6 +44,8 @@ const elements = {
   liveNoise: $('#live-noise'),
   mapBoard: $('#map-board'),
   mapMessage: $('#map-message'),
+  motorKeyMarker: $('#motor-key-marker'),
+  keyMarkerLabel: $('#key-marker-label'),
   motorTarget: $('#motor-target'),
   targetKey: $('#target-key'),
   targetInstruction: $('#target-instruction'),
@@ -122,7 +124,7 @@ const PHASE_TUTORIALS = {
   motor: {
     title: '입력 기준선: 두 단계를 순서대로 수행합니다',
     prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
-    steps: ['표적 안에 무작위로 표시된 1, 2, 3, 4 중 한 숫자 키를 누릅니다.', '빛나는 표적을 클릭합니다.']
+    steps: ['노란 숫자 표지에 표시된 1, 2, 3, 4 중 한 숫자 키를 누릅니다.', '파란 마우스 표지를 클릭합니다.']
   },
   dual: {
     title: '동시 수행: 입력과 판단을 함께 수행합니다',
@@ -142,7 +144,7 @@ const PHASE_TUTORIALS = {
   inhibit: {
     title: '입력 억제: STOP 표적에서는 아무것도 입력하지 않습니다',
     prompt: '빨간 STOP 표적이 보이면 숫자 키와 클릭을 모두 멈추세요.',
-    steps: ['STOP이 아닌 표적에서는 숫자 키와 클릭을 수행합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
+    steps: ['노란 숫자 표지와 파란 클릭 표지가 보이면 숫자 키를 누른 뒤 클릭합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
   },
   transfer: {
     title: '변경 조건 검사: 순서와 피드백이 바뀝니다',
@@ -152,7 +154,7 @@ const PHASE_TUTORIALS = {
   challenge: {
     title: '최고 난도 복합: 멈추지 않고 두 과제를 함께 수행합니다',
     prompt: '이 모드는 시간 제한이 없습니다. 숫자 표적, 상황 판단, 고정 우선순위, STOP 표적이 함께 나옵니다.',
-    steps: ['숫자 키를 누른 뒤 빛나는 표적을 클릭합니다.', '왼쪽 상황은 Q, 가운데는 W, 오른쪽은 E로 고릅니다.', '빨간 STOP 표적에서는 숫자 키와 클릭을 모두 멈춥니다.', '기지 방어, 보급, 생산, 정찰, 확장, 공격 순서를 항상 사용합니다.', '순서가 기억나지 않으면 일시중지를 누르고 오른쪽 우선순위표를 다시 봅니다.']
+    steps: ['노란 숫자 표지의 키를 누른 뒤 파란 클릭 표지를 클릭합니다.', '왼쪽 상황은 Q, 가운데는 W, 오른쪽은 E로 고릅니다.', '빨간 STOP 표적에서는 숫자 키와 클릭을 모두 멈춥니다.', '기지 방어, 보급, 생산, 정찰, 확장, 공격 순서를 항상 사용합니다.', '순서가 기억나지 않으면 일시중지를 누르고 오른쪽 우선순위표를 다시 봅니다.']
   }
 };
 
@@ -296,11 +298,12 @@ function setupPhase() {
   elements.motorOrder.textContent = hasMotor(phase) ? '명령 대기' : '입력 없음';
   elements.mapMessage.hidden = hasMotor(phase);
   elements.mapMessage.innerHTML = phase.id === 'prepare'
-    ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 숫자 키와 표적 클릭을 순서대로 수행해야 합니다.</span>'
+    ? '<strong>앱은 완성한 명령만 점수로 계산합니다</strong><span>사용자는 노란 숫자 표지의 키를 누른 뒤 파란 클릭 표지를 눌러야 합니다.</span>'
     : '<strong>앱이 시각 판단 기준선을 측정합니다</strong><span>사용자는 이 구간에서 입력하지 않고 상황 그림만 보고 행동을 골라야 합니다.</span>';
   elements.decisionCard.hidden = true;
   elements.pauseReview.hidden = true;
   elements.motorTarget.hidden = true;
+  elements.motorKeyMarker.hidden = true;
   elements.decisionFeedback.textContent = '';
   updatePhaseRail();
   updateCoach();
@@ -333,9 +336,9 @@ function updateCoach() {
   const phase = activePhase();
   const lines = {
     prepare: '앱은 곧 입력 과제와 판단 과제를 따로 측정합니다. 사용자는 정확도를 유지할 수 있는 속도로 입력해야 합니다.',
-    motor: '사용자는 숫자 키를 누른 뒤 움직인 표적을 클릭해야 합니다.',
+    motor: '사용자는 노란 숫자 표지의 키를 누른 뒤 파란 클릭 표지를 눌러야 합니다.',
     decision: '사용자는 문장을 읽지 않고 상황 그림을 보고 가장 먼저 처리할 행동을 골라야 합니다.',
-    dual: '사용자는 숫자 키와 표적 클릭을 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
+    dual: '사용자는 숫자 표지와 클릭 표지를 계속 수행하면서 그림 판단도 함께 풀어야 합니다.',
     priority: '앱이 한 과제를 우선 과제로 표시해도 사용자는 다른 과제를 계속 수행해야 합니다.',
     switch: '앱이 상단 목표를 바꾸면 사용자는 새 목표에 맞는 행동을 골라야 합니다.',
     inhibit: '앱이 빨간 STOP 표적을 표시하면 사용자는 숫자 키와 클릭을 모두 멈춰야 합니다.',
@@ -383,18 +386,26 @@ function spawnMotorTarget() {
   if (stop) stats.stopTrials += 1;
   else stats.motorAttempts += 1;
   elements.motorTarget.hidden = false;
+  elements.motorKeyMarker.hidden = stop;
   elements.motorTarget.classList.toggle('stop', stop);
   elements.motorTarget.classList.remove('keyed', 'commanded');
-  elements.targetKey.textContent = stop ? 'STOP' : `${keyLabel(command.groupCode)} 키 → 클릭`;
-  elements.targetInstruction.textContent = stop ? '숫자 키와 클릭을 멈추세요' : '숫자 키를 누른 뒤 여기 클릭';
-  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 키를 누른 뒤 클릭할 빛나는 표적`);
+  elements.motorKeyMarker.classList.remove('keyed');
+  elements.keyMarkerLabel.textContent = `${keyLabel(command.groupCode)} 키`;
+  elements.targetKey.textContent = stop ? 'STOP' : '마우스 클릭';
+  elements.targetInstruction.textContent = stop ? '숫자 키와 클릭을 멈추세요' : '먼저 노란 숫자 표지의 키를 누르세요';
+  elements.motorKeyMarker.setAttribute('aria-label', `${keyLabel(command.groupCode)} 키를 눌러야 하는 노란 숫자 표지`);
+  elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : '숫자 키를 누른 뒤 클릭할 파란 마우스 표지');
   elements.motorOrder.textContent = stop
     ? 'STOP · 숫자 키와 클릭을 모두 멈추세요'
-    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. 빛나는 표적 클릭`;
-  const x = 11 + Math.random() * 78;
-  const y = 14 + Math.random() * 72;
-  elements.motorTarget.style.left = `${x}%`;
-  elements.motorTarget.style.top = `${y}%`;
+    : `1. 노란 ${keyLabel(command.groupCode)} 키 표지 → 2. 파란 클릭 표지`;
+  const keyX = 11 + Math.random() * 36;
+  const keyY = 16 + Math.random() * 66;
+  const clickX = 57 + Math.random() * 31;
+  const clickY = 16 + Math.random() * 66;
+  elements.motorKeyMarker.style.left = `${keyX}%`;
+  elements.motorKeyMarker.style.top = `${keyY}%`;
+  elements.motorTarget.style.left = `${clickX}%`;
+  elements.motorTarget.style.top = `${clickY}%`;
 }
 
 function expireTarget() {
@@ -402,7 +413,9 @@ function expireTarget() {
   if (!target) return;
   if (target.stop && !target.violated) session.stats[activePhase().id].stopSuccesses += 1;
   elements.motorTarget.hidden = true;
+  elements.motorKeyMarker.hidden = true;
   elements.motorTarget.classList.remove('keyed', 'commanded', 'stop');
+  elements.motorKeyMarker.classList.remove('keyed');
   session.currentTarget = null;
 }
 
@@ -426,12 +439,13 @@ function handleMotorKey(code) {
   }
   if (isGroupKey && code === target.groupCode && !target.grouped) {
     target.grouped = true;
-    elements.motorTarget.classList.add('keyed');
+    elements.motorKeyMarker.classList.add('keyed');
+    elements.keyMarkerLabel.textContent = `${keyLabel(target.groupCode)} ✓`;
     target.commanded = true;
     elements.motorTarget.classList.add('commanded');
-    elements.targetKey.textContent = '여기 클릭';
-    elements.targetInstruction.textContent = '마우스로 클릭하세요';
-    elements.motorOrder.textContent = '2. 빛나는 표적 클릭';
+    elements.targetKey.textContent = '마우스 클릭';
+    elements.targetInstruction.textContent = '파란 표지를 클릭하세요';
+    elements.motorOrder.textContent = '2. 파란 클릭 표지 클릭';
   } else {
     stats.noiseInputs += 1;
   }
@@ -602,29 +616,29 @@ function renderMotorTutorial() {
   const state = step === 0 ? 'key' : (step === 1 ? 'click' : 'complete');
   const copy = {
     key: {
-      title: '3 키를 누르세요',
-      prompt: '키보드에서 3 키를 한 번 누르세요.',
-      question: '지금은 마우스를 클릭하지 않습니다.',
-      feedback: '3 키를 누르면 표적을 클릭하는 단계가 시작됩니다.'
+      title: '노란 숫자 표지의 3 키를 누르세요',
+      prompt: '왼쪽 노란 표지의 3 키를 한 번 누르세요.',
+      question: '파란 마우스 표지는 아직 클릭하지 않습니다.',
+      feedback: '3 키를 누르면 파란 마우스 표지를 클릭하는 단계가 시작됩니다.'
     },
     click: {
-      title: '이제 빛나는 표적을 클릭하세요',
-      prompt: '3 키를 눌렀습니다. 아래 빛나는 표적을 마우스로 클릭하세요.',
-      question: '숫자 키를 다시 누르지 말고 표적을 클릭하세요.',
-      feedback: '표적을 클릭하면 입력 한 번이 완료됩니다.'
+      title: '이제 파란 마우스 표지를 클릭하세요',
+      prompt: '노란 표지의 3 키를 눌렀습니다. 오른쪽 파란 표지를 마우스로 클릭하세요.',
+      question: '숫자 키를 다시 누르지 말고 파란 표지를 클릭하세요.',
+      feedback: '파란 표지를 클릭하면 입력 한 번이 완료됩니다.'
     },
     complete: {
       title: '잘했어요',
-      prompt: '사용자는 3 키를 누른 뒤 해당 표적을 클릭했습니다.',
-      question: '이 모드에서는 표적에 표시된 숫자 키를 누른 뒤 그 표적을 클릭합니다.',
+      prompt: '사용자는 노란 표지의 3 키를 누른 뒤 파란 표지를 클릭했습니다.',
+      question: '이 모드에서는 노란 숫자 표지의 키를 누른 뒤 파란 마우스 표지를 클릭합니다.',
       feedback: '입력 규칙을 이해했습니다. 이제 최고 난도 복합을 시작할 수 있습니다.'
     }
   }[state];
   elements.tutorialProgress.textContent = `키 입력 튜토리얼 ${step + 1} / 3`;
   elements.tutorialTitle.textContent = copy.title;
   elements.tutorialScene.innerHTML = `<div class="motor-tutorial-board motor-tutorial-board--${state}">
-    <kbd>${state === 'key' ? '3' : (state === 'click' ? '3 ✓' : '완료')}</kbd>
-    <button id="motor-tutorial-target" type="button">${state === 'key' ? '표적' : (state === 'click' ? '여기 클릭' : '잘했어요')}</button>
+    <div class="tutorial-key-marker"><kbd>${state === 'key' ? '3 키' : (state === 'click' ? '3 ✓' : '완료')}</kbd><small>숫자 키 표지</small></div>
+    <div class="tutorial-click-marker"><button id="motor-tutorial-target" type="button">${state === 'complete' ? '잘했어요' : '마우스 클릭'}</button><small>마우스 표지</small></div>
   </div>`;
   elements.tutorialPrompt.textContent = copy.prompt;
   elements.tutorialQuestion.textContent = copy.question;
@@ -640,7 +654,7 @@ function renderMotorTutorial() {
 function handleMotorTutorialKey(code) {
   if (!tutorial.active || tutorial.kind !== 'motor') return;
   if (tutorial.motorStep !== 0) {
-    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 빛나는 표적을 클릭하는 겁니다.';
+    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 파란 마우스 표지를 클릭하는 겁니다.';
     elements.tutorialFeedback.classList.add('is-wrong');
     return;
   }
@@ -649,14 +663,14 @@ function handleMotorTutorialKey(code) {
     renderMotorTutorial();
     return;
   }
-  elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 3 키를 누르는 겁니다.';
+  elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 노란 숫자 표지의 3 키를 누르는 겁니다.';
   elements.tutorialFeedback.classList.add('is-wrong');
 }
 
 function answerMotorTutorialClick() {
   if (!tutorial.active || tutorial.kind !== 'motor') return;
   if (tutorial.motorStep !== 1) {
-    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 3 키를 누른 뒤 해당 표적을 클릭하는 겁니다.';
+    elements.tutorialFeedback.textContent = '그렇게 하는 게 아니라 노란 숫자 표지의 3 키를 누른 뒤 파란 표지를 클릭하는 겁니다.';
     elements.tutorialFeedback.classList.add('is-wrong');
     return;
   }

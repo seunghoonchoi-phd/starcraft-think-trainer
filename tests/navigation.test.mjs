@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,15 +48,19 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(html, /홈으로/);
   assert.match(html, /id="decision-status">응답 시간</);
   assert.match(html, /id="situation-visual"/);
+  assert.match(html, /id="motor-key-marker"/);
+  assert.match(html, /id="key-marker-label"/);
   assert.match(html, /id="target-instruction"/);
-  assert.match(html, /1\. 1 키 누르기/);
-  assert.match(html, /빛나는 표적 클릭/);
+  assert.match(html, /숫자 키 표지/);
+  assert.match(html, /마우스 클릭 표지/);
   assert.match(html, /id="tutorial-panel"/);
   assert.match(html, /id="tutorial-question"/);
   assert.match(html, /시간 제한 없음/);
   assert.doesNotMatch(html, /<kbd>[RTYFGH]<\/kbd>/);
   assert.match(app, /createMotorCommand/);
-  assert.match(app, /빛나는 표적/);
+  assert.match(app, /motorKeyMarker/);
+  assert.match(app, /노란 숫자 표지/);
+  assert.match(app, /파란 클릭 표지/);
   assert.doesNotMatch(app, /같은 기호가 있는 표적/);
   assert.match(app, /const DECISION_ANSWER_MS = 3000/);
   assert.doesNotMatch(app, /DECISION_READING_MS|beginDecisionAnswer/);
@@ -66,7 +70,7 @@ test('the trainer exposes two tutorials and the unlimited highest-difficulty pra
   assert.match(app, /function renderPriorityGuide\(\)/);
   assert.match(app, /function openMotorTutorial\(\)/);
   assert.match(app, /function handleMotorTutorialKey\(code\)/);
-  assert.match(app, /그렇게 하는 게 아니라 3 키를 누르는 겁니다/);
+  assert.match(app, /노란 숫자 표지의 3 키를 누르는 겁니다/);
   assert.match(app, /positionLabel} 상황/);
   assert.match(app, /'Digit1', 'Digit2', 'Digit3', 'Digit4'/);
   assert.match(app, /function beginPhase\(\)/);

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
@@ -99,9 +99,13 @@
                 <div class="base home-base"><span>본진</span></div>
                 <div class="base production-base"><span>생산</span></div>
                 <div class="base scout-base"><span>정찰</span></div>
-                <button id="motor-target" class="motor-target" type="button" hidden aria-label="명령 표적">
-                  <span id="target-key">1 키 → 클릭</span>
-                  <small id="target-instruction">그 다음, 여기 클릭</small>
+                <div id="motor-key-marker" class="motor-key-marker" hidden aria-label="숫자 키 표지">
+                  <span id="key-marker-label">1 키</span>
+                  <small>숫자 키</small>
+                </div>
+                <button id="motor-target" class="motor-target" type="button" hidden aria-label="마우스 클릭 표지">
+                  <span id="target-key">마우스 클릭</span>
+                  <small id="target-instruction">먼저 숫자 표지의 키를 누르세요</small>
                 </button>
                 <div id="map-message" class="map-message">
                   <strong>앱이 훈련을 시작합니다</strong>

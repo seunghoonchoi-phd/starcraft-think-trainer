@@ -12,21 +12,10 @@ import {
 import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
-const PAGE_ORDER = ['home', 'trainer', 'mechanism', 'evidence'];
-const PAGE_LABELS = {
-  home: '소개',
-  trainer: '훈련',
-  mechanism: '훈련 방법',
-  evidence: '연구 근거'
-};
 const BASE_TITLE = '스타크래프트 입력·판단 훈련';
 const $ = (selector) => document.querySelector(selector);
 const elements = {
   pageViews: [...document.querySelectorAll('.page-view[data-page]')],
-  pageLinks: [...document.querySelectorAll('[data-page-link]')],
-  previousPage: $('#previous-page'),
-  nextPage: $('#next-page'),
-  pagePosition: $('#page-position'),
   app: $('#app'),
   startPanel: $('#start-panel'),
   playPanel: $('#play-panel'),
@@ -35,7 +24,6 @@ const elements = {
   demoButton: $('#demo-button'),
   restartButton: $('#restart-button'),
   exportButton: $('#export-button'),
-  installButton: $('#install-button'),
   totalTime: $('#total-time'),
   phaseTime: $('#phase-time'),
   phaseNumber: $('#phase-number'),
@@ -91,58 +79,19 @@ const session = {
   summary: null
 };
 
-let currentPage = null;
+let currentPage = 'trainer';
 
-function requestedPage() {
-  const value = location.hash.slice(1);
-  if (value === 'top') return 'home';
-  return PAGE_ORDER.includes(value) ? value : 'home';
-}
-
-function showPage(focusPage = true) {
-  const pageId = requestedPage();
-  const pageIndex = PAGE_ORDER.indexOf(pageId);
-  const previousId = PAGE_ORDER[pageIndex - 1];
-  const nextId = PAGE_ORDER[pageIndex + 1];
-
-  if (location.hash && location.hash !== `#${pageId}`) {
-    window.history.replaceState(null, '', `${location.pathname}${location.search}#${pageId}`);
-  }
-  if (currentPage === 'trainer' && pageId !== 'trainer' && session.running && !session.paused) {
-    pauseSession('page');
-  }
-
+function showTrainer(focusTrainer = true) {
+  if (location.hash) window.history.replaceState(null, '', `${location.pathname}${location.search}`);
   elements.pageViews.forEach((view) => {
-    const active = view.dataset.page === pageId;
-    view.hidden = !active;
-    view.classList.toggle('is-active', active);
+    view.hidden = false;
+    view.classList.add('is-active');
   });
-  elements.pageLinks.forEach((link) => {
-    if (link.getAttribute('href') === `#${pageId}`) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
-  });
+  elements.pauseOverlay.hidden = !session.paused;
+  document.body.dataset.currentPage = 'trainer';
+  document.title = BASE_TITLE;
 
-  elements.previousPage.hidden = !previousId;
-  if (previousId) {
-    elements.previousPage.href = `#${previousId}`;
-    elements.previousPage.setAttribute('aria-label', `이전 화면: ${PAGE_LABELS[previousId]}`);
-  }
-  elements.nextPage.hidden = !nextId;
-  if (nextId) {
-    elements.nextPage.href = `#${nextId}`;
-    elements.nextPage.setAttribute('aria-label', `다음 화면: ${PAGE_LABELS[nextId]}`);
-  }
-  elements.pagePosition.textContent = `${pageIndex + 1} / ${PAGE_ORDER.length}`;
-  elements.pauseOverlay.hidden = pageId !== 'trainer' || !session.paused;
-  document.body.dataset.currentPage = pageId;
-  document.title = pageId === 'home' ? BASE_TITLE : `${PAGE_LABELS[pageId]} | ${BASE_TITLE}`;
-  currentPage = pageId;
-  window.scrollTo(0, 0);
-
-  if (focusPage) {
-    const activeView = elements.pageViews.find((view) => view.dataset.page === pageId);
-    activeView?.focus({ preventScroll: true });
-  }
+  if (focusTrainer) elements.pageViews[0]?.focus({ preventScroll: true });
 }
 
 function loadStore() {
@@ -578,23 +527,8 @@ window.addEventListener('keydown', (event) => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) pauseSession('tab');
 });
-window.addEventListener('hashchange', () => showPage(true));
-
-let deferredInstall = null;
-window.addEventListener('beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredInstall = event;
-  elements.installButton.hidden = false;
-});
-elements.installButton.addEventListener('click', async () => {
-  if (!deferredInstall) return;
-  await deferredInstall.prompt();
-  deferredInstall = null;
-  elements.installButton.hidden = true;
-});
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 
-showPage(false);
+showTrainer(false);

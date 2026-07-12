@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDecision, goalForPhase, priorityForTime } from '../js/content.js';
+import { createDecision, goalForPhase, priorityForTime, TUTORIAL_CASES } from '../js/content.js';
 
 function seededRandom(values) {
   let index = 0;
@@ -27,4 +27,13 @@ test('priority phase rotates all three priorities', () => {
   assert.equal(priorityForTime(0), '입력 우선');
   assert.equal(priorityForTime(20), '판단 우선');
   assert.equal(priorityForTime(40), '동일 비중');
+});
+
+test('tutorial presents every situation without a timer and explains each answer', () => {
+  assert.equal(TUTORIAL_CASES.length, 6);
+  for (const item of TUTORIAL_CASES) {
+    assert.ok(item.prompt);
+    assert.ok(item.reason);
+    assert.ok(item.options.some((option) => option.id === item.correctId));
+  }
 });

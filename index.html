@@ -38,8 +38,8 @@
         <div class="console-wrap">
           <section id="start-panel" class="start-panel">
             <div>
-              <p class="console-kicker">오늘의 목표</p>
-              <h3>입력 속도를 기준선의 85% 이상 유지하면서<br>판단 문제를 풀기</h3>
+              <p class="console-kicker">오늘의 훈련</p>
+              <h3>이중과제 입력·판단 훈련</h3>
               <p>앱은 매번 숫자 키, 명령 키, 표적 위치를 바꿉니다. 사용자는 <kbd>1부터 4</kbd> 중 하나를 누르고 <kbd>A</kbd>, <kbd>S</kbd>, <kbd>D</kbd> 중 명령 키를 누른 뒤 표적을 클릭합니다. 상황 그림이 뜨면 사용자는 <kbd>Q</kbd>, <kbd>W</kbd>, <kbd>E</kbd>로 먼저 처리할 행동을 고릅니다.</p>
             </div>
             <div class="setup-grid">
@@ -53,10 +53,27 @@
             </div>
             <div class="start-actions">
               <button id="start-button" class="primary-button" type="button">바로 훈련 시작</button>
+              <button id="tutorial-button" class="ghost-button" type="button">상황 판단 튜토리얼</button>
               <button id="demo-button" class="ghost-button" type="button">45초 체험</button>
             </div>
             <p id="practice-status" class="practice-status" role="status" hidden></p>
             <p class="small-print">이 앱은 키보드와 마우스를 사용하는 데스크톱 환경을 지원합니다. 이 앱은 사용자의 건강 상태나 지능을 검사하지 않습니다.</p>
+          </section>
+
+          <section id="tutorial-panel" class="tutorial-panel" aria-label="훈련 튜토리얼" hidden>
+            <div class="tutorial-card">
+              <div class="tutorial-head"><span id="tutorial-progress">상황 1 / 6</span><strong>시간 제한 없음</strong></div>
+              <h3 id="tutorial-title">상황을 하나씩 확인합니다</h3>
+              <div id="tutorial-scene" class="tutorial-scene"></div>
+              <p id="tutorial-prompt" class="tutorial-prompt"></p>
+              <p id="tutorial-question" class="tutorial-question">지금 먼저 해야 할 일은 무엇인가요?</p>
+              <div id="tutorial-options" class="tutorial-options"></div>
+              <p id="tutorial-feedback" class="tutorial-feedback" aria-live="polite"></p>
+              <div class="tutorial-actions">
+                <button id="tutorial-close" class="ghost-button" type="button">튜토리얼 닫기</button>
+                <button id="tutorial-next" class="primary-button" type="button" hidden>다음 상황</button>
+              </div>
+            </div>
           </section>
 
           <section id="play-panel" class="play-panel" hidden aria-live="polite">
@@ -85,7 +102,7 @@
                 <div class="base scout-base"><span>정찰</span></div>
                 <button id="motor-target" class="motor-target" type="button" hidden aria-label="명령 표적">
                   <span id="target-key">▲</span>
-                  <small>명령 위치</small>
+                  <small id="target-instruction">마지막: 여기 클릭</small>
                 </button>
                 <div id="map-message" class="map-message">
                   <strong>앱이 훈련을 시작합니다</strong>
@@ -106,7 +123,7 @@
             </div>
 
             <div class="command-hud">
-              <div><span>현재 입력</span><strong id="motor-order">1 → A → ▲</strong></div>
+              <div><span>현재 순서</span><strong id="motor-order">1. 1 키 누르기 → 2. A 키 누르기 → 3. ▲ 표적 클릭</strong></div>
               <div><span>판단 키</span><strong>Q · W · E</strong></div>
               <p id="coach-line">앱은 숫자 키, 명령 키, 클릭을 순서대로 완료한 동작만 점수로 계산합니다.</p>
             </div>

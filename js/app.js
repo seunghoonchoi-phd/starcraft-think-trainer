@@ -9,7 +9,7 @@ import {
   keyLabel,
   summarizePhase
 } from './engine.js';
-import { createDecision, goalForPhase, priorityForTime, GOALS } from './content.js';
+import { createDecision, goalForPhase, priorityForTime, GOALS, TUTORIAL_CASES } from './content.js';
 
 const STORAGE_KEY = 'think-hands-trainer-v1';
 const BASE_TITLE = '이중과제 입력·판단 훈련';
@@ -22,6 +22,7 @@ const elements = {
   playPanel: $('#play-panel'),
   resultPanel: $('#result-panel'),
   startButton: $('#start-button'),
+  tutorialButton: $('#tutorial-button'),
   demoButton: $('#demo-button'),
   restartButton: $('#restart-button'),
   exportButton: $('#export-button'),
@@ -41,6 +42,7 @@ const elements = {
   mapMessage: $('#map-message'),
   motorTarget: $('#motor-target'),
   targetKey: $('#target-key'),
+  targetInstruction: $('#target-instruction'),
   motorOrder: $('#motor-order'),
   decisionCard: $('#decision-card'),
   decisionStatus: $('#decision-status'),
@@ -60,7 +62,17 @@ const elements = {
   resultTransfer: $('#result-transfer'),
   resultDetail: $('#result-detail'),
   practiceStatus: $('#practice-status'),
-  fatigueSelect: $('#fatigue-select')
+  fatigueSelect: $('#fatigue-select'),
+  tutorialPanel: $('#tutorial-panel'),
+  tutorialProgress: $('#tutorial-progress'),
+  tutorialTitle: $('#tutorial-title'),
+  tutorialScene: $('#tutorial-scene'),
+  tutorialPrompt: $('#tutorial-prompt'),
+  tutorialQuestion: $('#tutorial-question'),
+  tutorialOptions: $('#tutorial-options'),
+  tutorialFeedback: $('#tutorial-feedback'),
+  tutorialClose: $('#tutorial-close'),
+  tutorialNext: $('#tutorial-next')
 };
 
 const session = {
@@ -83,10 +95,49 @@ const session = {
   currentDecision: null,
   motorIndex: 0,
   priority: '동일 비중',
-  summary: null
+  summary: null,
+  tutorialsSeen: new Set()
 };
 
 let currentPage = 'trainer';
+const tutorial = { active: false, index: 0, answered: false, kind: 'decision', onComplete: null };
+const PHASE_TUTORIALS = {
+  prepare: {
+    title: '훈련을 시작하기 전에 규칙을 확인합니다',
+    prompt: '각 단계의 시간은 튜토리얼을 닫고 실제 훈련을 시작한 뒤에만 흐릅니다.',
+    steps: ['화면 아래의 현재 순서를 먼저 읽습니다.', '새 행동이 나오면 앱이 시간을 멈춘 튜토리얼을 먼저 표시합니다.']
+  },
+  motor: {
+    title: '입력 기준선: 세 단계를 순서대로 수행합니다',
+    prompt: '판단 문제는 없습니다. 아래 순서만 정확하게 수행하세요.',
+    steps: ['숫자 키를 누릅니다.', 'A, S, D 중 표시된 명령 키를 누릅니다.', '같은 기호가 있는 표적을 클릭합니다.']
+  },
+  dual: {
+    title: '동시 수행: 입력과 판단을 함께 수행합니다',
+    prompt: '왼쪽 표적의 세 단계 입력을 계속하면서 오른쪽 상황 카드의 답도 고르세요.',
+    steps: ['입력 순서는 아래 문장을 따릅니다.', '상황 카드는 가장 늦으면 손해가 큰 일을 묻습니다.', '두 과제 중 하나가 표시돼도 다른 과제를 멈추지 않습니다.']
+  },
+  priority: {
+    title: '우선 과제 변경: 위쪽 안내를 먼저 확인합니다',
+    prompt: '앱은 입력 우선, 판단 우선, 동일 비중을 번갈아 표시합니다.',
+    steps: ['입력 우선이면 표적 순서를 먼저 처리합니다.', '판단 우선이면 상황 카드의 답을 먼저 고릅니다.', '표시가 바뀌어도 두 과제를 모두 수행합니다.']
+  },
+  switch: {
+    title: '판단 규칙 변경: 질문 위의 규칙을 읽습니다',
+    prompt: '상황은 비슷해도 우선순위 규칙이 바뀌면 먼저 고를 행동도 바뀔 수 있습니다.',
+    steps: ['상황 카드 위의 한 문장 규칙을 확인합니다.', '그 규칙에 맞는 행동을 Q, W, E 중에서 고릅니다.']
+  },
+  inhibit: {
+    title: '입력 억제: STOP 표적에서는 아무것도 입력하지 않습니다',
+    prompt: '빨간 STOP 표적이 보이면 숫자 키, 명령 키, 클릭을 모두 멈추세요.',
+    steps: ['STOP이 아닌 표적에서는 세 단계 입력을 수행합니다.', 'STOP 표적에서는 다음 표적이 나올 때까지 기다립니다.']
+  },
+  transfer: {
+    title: '변경 조건 검사: 순서와 피드백이 바뀝니다',
+    prompt: '앱은 숫자 키 순서를 바꾸고 판단 정답을 바로 알려 주지 않습니다.',
+    steps: ['화면 아래의 현재 순서를 매번 확인합니다.', '상황 카드의 답을 고른 뒤에는 정답을 기다리지 않고 다음 행동을 수행합니다.']
+  }
+};
 
 function showTrainer(focusTrainer = true) {
   if (location.hash) window.history.replaceState(null, '', `${location.pathname}${location.search}`);
@@ -170,6 +221,7 @@ function startSession(demo = false, practicePhaseId = null) {
   session.stats = {};
   session.motorInterval = demo ? 850 : 1150;
   session.summary = null;
+  session.tutorialsSeen = new Set();
   elements.startPanel.hidden = true;
   elements.resultPanel.hidden = true;
   elements.playPanel.hidden = false;
@@ -177,6 +229,24 @@ function startSession(demo = false, practicePhaseId = null) {
   elements.totalTimeLabel.textContent = session.practice ? '단계 시간' : '전체 시간';
   elements.practiceStatus.hidden = true;
   elements.phaseList.querySelectorAll('li').forEach((item) => item.classList.remove('active', 'done'));
+  beginPhase();
+}
+
+function beginPhase() {
+  const phase = activePhase();
+  if (!phase) return;
+  if (!session.tutorialsSeen.has(phase.id)) {
+    session.tutorialsSeen.add(phase.id);
+    openPhaseTutorial(phase, () => {
+      if (!session.running || activePhase()?.id !== phase.id) return;
+      startActivePhase();
+    });
+    return;
+  }
+  startActivePhase();
+}
+
+function startActivePhase() {
   setupPhase();
   session.lastTick = performance.now();
   requestTick();
@@ -283,8 +353,11 @@ function spawnMotorTarget() {
   elements.motorTarget.classList.toggle('stop', stop);
   elements.motorTarget.classList.remove('keyed', 'commanded');
   elements.targetKey.textContent = stop ? 'STOP' : command.actionSymbol;
+  elements.targetInstruction.textContent = stop ? '입력하지 마세요' : '마지막: 여기 클릭';
   elements.motorTarget.setAttribute('aria-label', stop ? '멈춤 표적' : `${keyLabel(command.groupCode)} 다음 ${keyLabel(command.actionCode)}를 누르고 클릭할 표적`);
-  elements.motorOrder.textContent = stop ? 'STOP · 입력하지 마세요' : `${keyLabel(command.groupCode)} → ${keyLabel(command.actionCode)} → ${command.actionSymbol}`;
+  elements.motorOrder.textContent = stop
+    ? 'STOP · 숫자 키, 명령 키, 클릭을 모두 멈추세요'
+    : `1. ${keyLabel(command.groupCode)} 키 누르기 → 2. ${keyLabel(command.actionCode)} 키 누르기 → 3. ${command.actionSymbol} 표적 클릭`;
   const x = 11 + Math.random() * 78;
   const y = 14 + Math.random() * 72;
   elements.motorTarget.style.left = `${x}%`;
@@ -322,9 +395,13 @@ function handleMotorKey(code) {
   if (isGroupKey && code === target.groupCode && !target.grouped) {
     target.grouped = true;
     elements.motorTarget.classList.add('keyed');
+    elements.targetInstruction.textContent = `다음: ${keyLabel(target.actionCode)} 키 누르기`;
+    elements.motorOrder.textContent = `2. ${keyLabel(target.actionCode)} 키 누르기 → 3. ${target.actionSymbol} 표적 클릭`;
   } else if (isCommandKey && target.grouped && code === target.actionCode && !target.commanded) {
     target.commanded = true;
     elements.motorTarget.classList.add('commanded');
+    elements.targetInstruction.textContent = '지금: 여기 클릭';
+    elements.motorOrder.textContent = `3. ${target.actionSymbol} 표적 클릭`;
   } else {
     stats.noiseInputs += 1;
   }
@@ -371,12 +448,121 @@ function situationGraphic(id) {
 }
 
 function renderSituation(decision) {
-  elements.decisionRule.textContent = `${decision.goalLabel} · 그림에서 먼저 처리할 신호를 고르세요.`;
+  elements.decisionRule.textContent = `지금 가장 늦으면 손해가 큰 일을 고르세요. ${decision.rule}`;
   elements.situationVisual.innerHTML = decision.issues.map((issue) => `
     <article class="situation-signal situation-signal--${issue.id}" aria-label="${issue.visual.description}">
       <div class="situation-art" aria-hidden="true">${situationGraphic(issue.id)}</div>
       <div class="situation-caption"><strong>${issue.visual.metric}</strong><span>${issue.visual.label}</span></div>
+      <p class="situation-description">${issue.visual.prompt}</p>
     </article>`).join('');
+}
+
+function openDecisionTutorial(onComplete = null) {
+  tutorial.active = true;
+  tutorial.index = 0;
+  tutorial.answered = false;
+  tutorial.kind = 'decision';
+  tutorial.onComplete = onComplete;
+  elements.tutorialPanel.hidden = false;
+  renderTutorial();
+  elements.tutorialPanel.querySelector('.tutorial-card')?.focus({ preventScroll: true });
+}
+
+function openPhaseTutorial(phase, onComplete) {
+  if (phase.id === 'decision') {
+    openDecisionTutorial(onComplete);
+    return;
+  }
+  tutorial.active = true;
+  tutorial.index = 0;
+  tutorial.answered = true;
+  tutorial.kind = 'phase';
+  tutorial.onComplete = onComplete;
+  elements.tutorialPanel.hidden = false;
+  renderTutorial();
+  elements.tutorialPanel.querySelector('.tutorial-card')?.focus({ preventScroll: true });
+}
+
+function closeTutorial(message = '', cancelled = false) {
+  const onComplete = tutorial.onComplete;
+  tutorial.active = false;
+  tutorial.onComplete = null;
+  elements.tutorialPanel.hidden = true;
+  if (cancelled && onComplete) {
+    returnHome('튜토리얼을 닫았습니다. 홈에서 원하는 단계를 다시 선택하세요.');
+    return;
+  }
+  if (message) {
+    elements.practiceStatus.hidden = false;
+    elements.practiceStatus.textContent = message;
+  }
+}
+
+function finishTutorial(message = '') {
+  const onComplete = tutorial.onComplete;
+  closeTutorial(message);
+  if (onComplete) onComplete();
+}
+
+function renderTutorial() {
+  if (tutorial.kind === 'phase') {
+    renderPhaseTutorial();
+    return;
+  }
+  renderDecisionTutorial();
+}
+
+function renderPhaseTutorial() {
+  const phase = activePhase();
+  const guide = PHASE_TUTORIALS[phase.id];
+  elements.tutorialProgress.textContent = `${phase.name} 튜토리얼`;
+  elements.tutorialTitle.textContent = guide.title;
+  elements.tutorialScene.innerHTML = `<ol class="tutorial-steps">${guide.steps.map((step) => `<li>${step}</li>`).join('')}</ol>`;
+  elements.tutorialPrompt.textContent = guide.prompt;
+  elements.tutorialQuestion.textContent = '아래 버튼을 누르면 이 단계의 시간이 시작됩니다.';
+  elements.tutorialOptions.hidden = true;
+  elements.tutorialOptions.innerHTML = '';
+  elements.tutorialFeedback.textContent = '시간 제한은 아직 시작하지 않았습니다. 조작 순서와 판단 기준을 확인한 뒤 시작하세요.';
+  elements.tutorialFeedback.className = 'tutorial-feedback';
+  elements.tutorialNext.textContent = '이해했습니다. 연습 시작';
+  elements.tutorialNext.hidden = false;
+}
+
+function renderDecisionTutorial() {
+  const item = TUTORIAL_CASES[tutorial.index];
+  tutorial.answered = false;
+  elements.tutorialProgress.textContent = `상황 ${tutorial.index + 1} / ${TUTORIAL_CASES.length}`;
+  elements.tutorialTitle.textContent = '시간 제한 없이 한 상황만 판단합니다';
+  elements.tutorialScene.innerHTML = situationGraphic(item.issueId);
+  elements.tutorialPrompt.textContent = item.prompt;
+  elements.tutorialQuestion.textContent = '지금 먼저 해야 할 일은 무엇인가요?';
+  elements.tutorialOptions.hidden = false;
+  elements.tutorialOptions.innerHTML = item.options.map((option) => `
+    <button class="tutorial-option" type="button" data-id="${option.id}">${option.label}</button>`).join('');
+  elements.tutorialOptions.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', () => answerTutorial(button.dataset.id));
+  });
+  elements.tutorialFeedback.textContent = '시간 제한이 없습니다. 문장과 그림을 확인한 뒤 답을 고르세요.';
+  elements.tutorialFeedback.className = 'tutorial-feedback';
+  elements.tutorialNext.hidden = true;
+}
+
+function answerTutorial(answerId) {
+  if (!tutorial.active || tutorial.kind !== 'decision' || tutorial.answered) return;
+  const item = TUTORIAL_CASES[tutorial.index];
+  tutorial.answered = true;
+  const correct = answerId === item.correctId;
+  elements.tutorialOptions.querySelectorAll('button').forEach((button) => {
+    button.disabled = true;
+    if (button.dataset.id === item.correctId) button.classList.add('is-correct');
+    if (button.dataset.id === answerId && !correct) button.classList.add('is-wrong');
+  });
+  elements.tutorialFeedback.textContent = correct
+    ? `맞습니다. ${item.reason}`
+    : `정답은 ${item.options.find((option) => option.id === item.correctId).label}입니다. ${item.reason}`;
+  elements.tutorialFeedback.classList.toggle('is-wrong', !correct);
+  elements.tutorialNext.textContent = tutorial.index === TUTORIAL_CASES.length - 1 ? '튜토리얼 완료' : '다음 상황';
+  elements.tutorialNext.hidden = false;
 }
 
 function showDecision() {
@@ -506,9 +692,7 @@ function advancePhase() {
     return;
   }
   session.phaseIndex += 1;
-  setupPhase();
-  session.lastTick = performance.now();
-  requestTick();
+  beginPhase();
 }
 
 function finishSession() {
@@ -608,7 +792,23 @@ function exportRecords() {
 }
 
 elements.startButton.addEventListener('click', () => startSession(false));
+elements.tutorialButton.addEventListener('click', () => openDecisionTutorial());
 elements.demoButton.addEventListener('click', () => startSession(true));
+elements.tutorialClose.addEventListener('click', () => closeTutorial('', Boolean(tutorial.onComplete)));
+elements.tutorialNext.addEventListener('click', () => {
+  if (!tutorial.active) return;
+  if (tutorial.kind === 'phase') {
+    finishTutorial();
+    return;
+  }
+  if (!tutorial.answered) return;
+  if (tutorial.index >= TUTORIAL_CASES.length - 1) {
+    finishTutorial('상황 판단 튜토리얼을 완료했습니다. 이제 바로 훈련을 시작할 수 있습니다.');
+    return;
+  }
+  tutorial.index += 1;
+  renderTutorial();
+});
 elements.phaseButtons.forEach((button) => {
   button.addEventListener('click', () => startSession(false, button.closest('li')?.dataset.phase));
 });
@@ -625,7 +825,7 @@ elements.homeButton.addEventListener('click', () => returnHome('현재 훈련을
 elements.resumeButton.addEventListener('click', resumeSession);
 
 window.addEventListener('keydown', (event) => {
-  if (event.repeat || !session.running || session.paused) return;
+  if (event.repeat || tutorial.active || !session.running || session.paused) return;
   if (['Digit1', 'Digit2', 'Digit3', 'Digit4', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyW', 'KeyE'].includes(event.code)) event.preventDefault();
   if (answerDecision(event.code)) return;
   handleMotorKey(event.code);
